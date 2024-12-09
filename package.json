@@ -1,0 +1,15 @@
+{
+  "name": "a_star_maze",
+  "version": "1.0.0",
+  "description": "",
+  "main": "controller.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "graphology": "^0.25.4",
+    "sigma": "^3.0.0-beta.39"
+  }
+}
