@@ -1,8 +1,12 @@
 import Graph from 'graphology';
 import Sigma from 'sigma';
 
+let graphInstance;
+
 export function init() {
   console.log('view.js loaded');
+
+  initGraph();
 }
 
 export function initGraph() {
@@ -11,5 +15,6 @@ export function initGraph() {
   graph.addNode('2', { label: 'Node 2', x: 1, y: 1, size: 20, color: 'red' });
   graph.addEdge('1', '2', { size: 5, color: 'purple' });
 
-  const sigmaInstance = new Sigma(graph, document.getElementById('container'));
+  const sigmaInstance = new Sigma(graph, document.getElementById('screen'));
+  console.log('sigmaInstance', sigmaInstance);
 }

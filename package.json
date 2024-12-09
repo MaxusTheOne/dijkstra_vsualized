@@ -4,12 +4,16 @@
   "description": "",
   "main": "controller.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "vite"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "graphology": "^0.25.4",
     "sigma": "^3.0.0-beta.39"
+  },
+  "devDependencies": {
+    "vite": "^6.0.3"
   }
 }
