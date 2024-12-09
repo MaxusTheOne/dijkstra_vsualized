@@ -25,9 +25,9 @@ export function initGraph() {
       attr.highlighted;
     },
     settings: {
-      gravity: 0.0000002,
+      gravity: 0.00005,
       inertia: 0.4,
-      repulsion: 0.4,
+      repulsion: 1,
       attraction: 0.0003,
     },
   });

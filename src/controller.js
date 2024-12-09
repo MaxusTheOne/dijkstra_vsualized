@@ -9,7 +9,7 @@ function init() {
   model.init();
   view.init();
 
-  setInterval(addRandomNode, 500);
+  setInterval(addRandomNode, 200);
 }
 
 function addRandomNode() {
@@ -19,19 +19,23 @@ function addRandomNode() {
     size: Math.random() * 10 + 10,
     color: '#' + Math.floor(Math.random() * 16777215).toString(16),
   };
-  const NodeId = Math.floor(Math.random() * view.nodeInstances) + 1;
-  const targetNodeId = nextViableNode(NodeId);
+  const nodeId = Math.floor(Math.random() * view.nodeInstances) + 1;
+  let targetNodeId = nextViableNode(nodeId);
+
+  if (targetNodeId === 1 && view.graph.degreeWithoutSelfLoops(1) >= 2) {
+    targetNodeId = nextViableNode(nodeId + 1);
+  }
+
   view.addNodeWithConnection(node, targetNodeId);
 }
 
 function nextViableNode(nodeId) {
   const connections = view.graph.degreeWithoutSelfLoops(nodeId);
 
-  if (connections > 2) {
-    nextViableNode(nodeId + 1);
-    return;
+  if (connections > 2 && nodeId < view.nodeInstances) {
+    return nextViableNode(nodeId + 1);
   }
-  console.log('added note with connections: ', connections);
+  console.log('chose note with connections: ', nodeId, connections);
 
   return nodeId;
 }
