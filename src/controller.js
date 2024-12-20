@@ -9,26 +9,12 @@ function init() {
   model.init();
   view.init();
 
-  // setInterval(addRandomNode, 3000);
+  
 }
 
-// function addRandomNode() {
-//   const node = {
-//     x: Math.random(),
-//     y: Math.random(),
-//     size: Math.random() * 10 + 10,
-//     color: '#' + Math.floor(Math.random() * 16777215).toString(16),
-//   };
-//   const nodeId = Math.floor(Math.random() * view.nodeInstances) + 1;
-//   let targetNodeId = nextViableNode(nodeId);
-
-//   if (targetNodeId === 1 && view.graph.degreeWithoutSelfLoops(1) >= 2) {
-//     targetNodeId = nextViableNode(nodeId + 1);
-//   }
-
-//   view.addNodeWithConnection(node, targetNodeId);
-// }
-
+function addNode(x,y){
+  view.addNode(x,y)
+}
 // function nextViableNode(nodeId) {
 //   const connections = view.graph.degreeWithoutSelfLoops(nodeId);
 

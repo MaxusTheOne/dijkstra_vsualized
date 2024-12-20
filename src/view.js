@@ -2,7 +2,8 @@ import Graph from 'graphology';
 import chroma from 'chroma-js';
 import ForceSupervisor from 'graphology-layout-force/worker';
 import Sigma from 'sigma';
-// import { Settings } from "sigma/dist/settings";
+// import { Settings } from "sigma/src/settings";
+
 
 export let graph;
 let draggedNode = null;
@@ -14,6 +15,8 @@ export function init() {
   console.log('view.js loaded');
 
   initGraph();
+
+  initEventListeners();
 }
 
 export function initGraph() {
@@ -36,5 +39,12 @@ export function addNodeWithConnection(node, targetNodeId) {
   graph.addEdge(nodeInstances, targetNodeId, {
     size: 5,
     color: 'purple',
+  });
+}
+
+function initEventListeners() {
+  document.addEventListener('mousedown', (e) => {
+    console.log('mousedown');;
+    console.log('mousedown at:', e.clientX, e.clientY);
   });
 }
