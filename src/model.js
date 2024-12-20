@@ -25,7 +25,6 @@ function dijkstra(){
   initVisitedNodes()
 
   let nextNode = pickShortest(distancesFromStart)
-  console.log(distancesFromNode(nextNode));
    
   // Get distances from all connections
 
