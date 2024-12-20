@@ -43,18 +43,22 @@ function initdistancesFromStart(){
       distancesFromStart.push({id: node.id, dist: Infinity})
     }
   }
-  console.log(distancesFromStart);
+  console.log("Distance List: ", distancesFromStart);
   
 }
 function distancesFromNode(node){
+  console.log("checking node:", node);
+  
   let nodeConnections = [];
   let currentNodeDistFromStart = findNodeByNameInDistance(node.id)
   for (let connection of node.connections){
-    let connectedNode = findNodeByName(connection)
-    let distanceNode = findNodeByNameInDistance(connection)
-    let dist = getNodeDist(node, connectedNode)
-    nodeConnections.push({id: connectedNode.id, dist: dist })
-    distanceNode.distance = dist + currentNodeDistFromStart
+    if (findNodeByNameInVisited(connection).visited == false ){
+      let connectedNode = findNodeByName(connection)
+      let distanceNode = findNodeByNameInDistance(connection)
+      let dist = getNodeDist(node, connectedNode)
+      nodeConnections.push({id: connectedNode.id, dist: dist })
+      distanceNode.dist = dist + currentNodeDistFromStart.dist
+    }
   }
   console.log(distancesFromStart);
   return nodeConnections
@@ -67,10 +71,14 @@ function findNodeByName(nodeName){
 function findNodeByNameInDistance(nodeName){
   return distancesFromStart.find(node => node.id == nodeName)
 }
+function findNodeByNameInVisited(nodeName){
+  return visitedNodes.find(node => node.id == nodeName)
+}
 
 function initVisitedNodes(){
   for (let node of nodes){
-    visitedNodes.push({id: node.id, visited: false})
+    if (node.id == "Denmark") visitedNodes.push({id: node.id, visited: true})
+    else visitedNodes.push({id: node.id, visited: false})
   }
 }
 
@@ -80,12 +88,18 @@ function getNodeDist(node1, node2) {
 
 function addDistanceFromStart(node){
   let dist = getNodeDist(startNode, node)
-  distancesFromStart.push({id: node.id, distance: dist})
+  distancesFromStart.push({id: node.id, dist: dist})
 }
 
 function pickShortest(nodeList){
-  let shortest = nodeList.sort( node => {node.distance})[0]
-
+  let i = 0;
+  let sortedList = nodeList.sort( node => {node.dist})
+  while (findNodeByNameInVisited(nodeList[i].id).visited == true){
+    i++
+  }
+  let shortest = sortedList[i]
+  console.log("shortest: ", shortest);
+  
   return findNodeByName(shortest.id)
   
 }
