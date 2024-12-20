@@ -12,7 +12,7 @@ function init() {
   
 }
 
-function addNode(x,y){
+export function addNode(x,y){
   view.addNode(x,y)
 }
 // function nextViableNode(nodeId) {
