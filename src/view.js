@@ -2,6 +2,7 @@ import Graph from 'graphology';
 import chroma from 'chroma-js';
 import ForceSupervisor from 'graphology-layout-force/worker';
 import Sigma from 'sigma';
+// import { Settings } from "sigma/dist/settings";
 
 export let graph;
 let draggedNode = null;
@@ -17,65 +18,14 @@ export function init() {
 
 export function initGraph() {
   graph = new Graph();
-  graph.addNode('1', { x: 0, y: 0, size: 10, color: chroma.random().hex() });
-
-  // Create the spring layout and start it
-  const layout = new ForceSupervisor(graph, {
-    isNodeFixed: (_, attr) => {
-      attr.highlighted;
-    },
-    settings: {
-      gravity: 0.00005,
-      inertia: 0.4,
-      repulsion: 1,
-      attraction: 0.0003,
-    },
-  });
-  layout.start();
-
+  graph.addNode('1', {label: "node1", x: 0, y: 0, size: 10, color: chroma.random().hex() });
+  graph.addNode('2', {label: "node2", x: 20, y: 20, size: 10, color: chroma.random().hex() });
+  
   // Create the sigma
   renderer = new Sigma(graph, document.getElementById('screen'));
 
-  // State for drag'n'drop
+  // renderer.setSettings({enableCameraZooming: false, enableCameraPan: false});
 
-  // On mouse down on a node
-  //  - we enable the drag mode
-  //  - save in the dragged node in the state
-  //  - highlight the node
-  //  - disable the camera so its state is not updated
-  renderer.on('downNode', (e) => {
-    isDragging = true;
-    draggedNode = e.node;
-    graph.setNodeAttribute(draggedNode, 'highlighted', true);
-    if (!renderer.getCustomBBox()) renderer.setCustomBBox(renderer.getBBox());
-  });
-
-  // On mouse move, if the drag mode is enabled, we change the position of the draggedNode
-  renderer.on('moveBody', ({ event }) => {
-    if (!isDragging || !draggedNode) return;
-
-    // Get new position of node
-    const pos = renderer.viewportToGraph(event);
-
-    graph.setNodeAttribute(draggedNode, 'x', pos.x);
-    graph.setNodeAttribute(draggedNode, 'y', pos.y);
-
-    // Prevent sigma to move camera:
-    event.preventSigmaDefault();
-    event.original.preventDefault();
-    event.original.stopPropagation();
-  });
-
-  // On mouse up, we reset the dragging mode
-  const handleUp = () => {
-    if (draggedNode) {
-      graph.removeNodeAttribute(draggedNode, 'highlighted');
-    }
-    isDragging = false;
-    draggedNode = null;
-  };
-  renderer.on('upNode', handleUp);
-  renderer.on('upStage', handleUp);
 }
 
 export function addNodeWithConnection(node, targetNodeId) {
