@@ -5,45 +5,45 @@ let startNode;
 let visitedNodes = []; // Visited nodes
 let priorityQueue = new PrioQueue(); // Priority queue for Dijkstra
 
-export function init() {
-  initNodes();
+export async function init() {
+  await initNodes();
   dijkstra();
 }
 
 // Node structure = {id: "Denmark", x: 0, y: 0, connections: ["Sweden", "Germany"]}
-function initNodes() {
-  nodes.push({ id: 'Denmark', x: 0, y: 0, connections: ['Sweden', 'Germany'] });
-  nodes.push({
-    id: 'Sweden',
-    x: 20,
-    y: 20,
-    connections: ['Denmark', 'Norway', 'Finland'],
+async function initNodes() {
+  let fetchedNodes;
+  let fetchedConnections;
+  await fetch('./src/nodes.json')
+    .then((response) => response.json())
+    .then((data) => {
+      fetchedNodes = data.nodes;
+      fetchedConnections = data.edges;
+    });
+  fetchedNodes.forEach((node) => {
+    node.connections = [];
   });
-  nodes.push({
-    id: 'Germany',
-    x: 40,
-    y: 40,
-    connections: ['Denmark'],
+  let connection1, connection2;
+  fetchedConnections.forEach((connection) => {
+    connection1 = fetchedNodes.find(
+      (node) => node.nodeId === connection.source
+    );
+    connection2 = fetchedNodes.find(
+      (node) => node.nodeId === connection.target
+    );
+
+    connection1.connections.push(connection2.name);
+    connection2.connections.push(connection1.name);
   });
-  nodes.push({
-    id: 'Norway',
-    x: 60,
-    y: 60,
-    connections: ['Sweden', 'Goalland', 'Finland'],
-  });
-  nodes.push({
-    id: 'Finland',
-    x: 80,
-    y: 80,
-    connections: ['Sweden', 'Goalland'],
-  });
-  nodes.push({
-    id: 'Goalland',
-    x: 100,
-    y: 100,
-    connections: ['Norway', 'Finland'],
+
+  fetchedNodes.forEach((node) => {
+    nodes.push({
+      ...node,
+      id: node.name,
+    });
   });
   startNode = nodes[0];
+  console.log('nodes', nodes);
 }
 
 function dijkstra() {
@@ -99,7 +99,7 @@ function initVisitedNodes() {
 
 // Utility functions
 function getNodeDist(node1, node2) {
-  return Math.sqrt((node1.x - node2.x) ** 2 + (node1.y - node2.y) ** 2);
+  return Math.sqrt((node1.lng - node2.lng) ** 2 + (node1.lat - node2.lat) ** 2);
 }
 
 function findNodeByName(nodeName) {
