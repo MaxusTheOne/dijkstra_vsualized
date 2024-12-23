@@ -42,25 +42,33 @@ async function initNodes() {
       id: node.name,
     });
   });
-  startNode = nodes[0];
+  startNode = nodes[1];
   console.log('nodes', nodes);
 }
 
 function dijkstra() {
+  console.log('Starting Dijkstra');
+  
   initVisitedNodes();
 
   // Enqueue the starting node
+  console.log(`enqueueing ${startNode.id} with distance 0`);
+  
   priorityQueue.enqueue(startNode, 0);
 
   while (!priorityQueue.isEmpty()) {
     let current = priorityQueue.dequeue(); // Get node with the smallest distance
-
+    console.log(`dequeueing ${current.node.id} with distance ${current.priority}`);
+    
     // Skip if already visited
     if (findNodeByNameInVisited(current.node.id).visited) {
+      console.log(`skipping ${current.node.id}`);
+      
       continue;
     }
 
     // Mark as visited
+    console.log(`marking ${current.node.id} as visited`);
     findNodeByNameInVisited(current.node.id).visited = true;
 
     // Process connections
@@ -68,13 +76,20 @@ function dijkstra() {
     for (let connection of connections) {
       let connectedNode = findNodeByName(connection.id);
 
+      console.log(`processing connection to ${connectedNode.id}`);
+      
+
       // Only update if the new distance is smaller
       let newDistance = current.priority + connection.dist;
+      console.log(`updating distance to ${connectedNode.id} to ${newDistance}`);
+      
       if (!findNodeByNameInVisited(connectedNode.id).visited) {
         priorityQueue.enqueue(connectedNode, newDistance);
       }
     }
   }
+  console.log("Finalc visited nodes", visitedNodes);
+  
 }
 
 // Calculate distances from a given node
