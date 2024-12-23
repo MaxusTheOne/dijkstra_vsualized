@@ -14,7 +14,6 @@ let isHoveringNode = false;
 
 export async function init() {
   console.log('view.js loaded');
-
   initMap();
   initGraph();
   await loadJson();

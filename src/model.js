@@ -4,9 +4,10 @@ let nodes = []; // Main nodes
 let startNode;
 let visitedNodes = []; // Visited nodes
 let priorityQueue = new PrioQueue(); // Priority queue for Dijkstra
-
 export async function init() {
   await initNodes();
+  console.log("nodes", nodes);
+  
   dijkstra();
 }
 
@@ -43,7 +44,6 @@ async function initNodes() {
     });
   });
   startNode = nodes[1];
-  console.log('nodes', nodes);
 }
 
 function dijkstra() {
@@ -63,7 +63,6 @@ function dijkstra() {
     // Skip if already visited
     if (findNodeByNameInVisited(current.node.id).visited) {
       console.log(`skipping ${current.node.id}`);
-      
       continue;
     }
 
@@ -76,20 +75,16 @@ function dijkstra() {
     for (let connection of connections) {
       let connectedNode = findNodeByName(connection.id);
 
-      console.log(`processing connection to ${connectedNode.id}`);
-      
-
-      // Only update if the new distance is smaller
-      let newDistance = current.priority + connection.dist;
-      console.log(`updating distance to ${connectedNode.id} to ${newDistance}`);
-      
+      // Only update if the new distance is smaller and the node is not visited
       if (!findNodeByNameInVisited(connectedNode.id).visited) {
+        let newDistance = current.priority + connection.dist;
+        console.log(`updating distance to ${connectedNode.id} to ${newDistance}`);
+        
+        // Enqueue the connected node with the new distance
         priorityQueue.enqueue(connectedNode, newDistance);
       }
     }
   }
-  console.log("Finalc visited nodes", visitedNodes);
-  
 }
 
 // Calculate distances from a given node
@@ -117,7 +112,7 @@ function getNodeDist(node1, node2) {
   return Math.sqrt((node1.lng - node2.lng) ** 2 + (node1.lat - node2.lat) ** 2);
 }
 
-function findNodeByName(nodeName) {
+export function findNodeByName(nodeName) {
   return nodes.find((node) => node.id === nodeName);
 }
 
