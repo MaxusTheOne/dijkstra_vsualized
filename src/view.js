@@ -1,5 +1,5 @@
 import 'leaflet/dist/leaflet.css';
-
+import * as model from './model.js';
 import chroma from 'chroma-js';
 import Graph from 'graphology';
 import L from 'leaflet';
@@ -7,15 +7,21 @@ import L from 'leaflet';
 // import { Settings } from "sigma/src/settings";
 
 export let graph;
+let graphNodes = [];
+let graphEdges = [];
 let map;
 export let nodeInstances = 1;
 let selectedNodes = [];
 
 export async function init() {
   console.log('view.js loaded');
+  
   initMap();
   initGraph();
   await loadJson();
+  console.log("visuel nodes", graphNodes);
+  console.log("visuel edges", graphEdges);
+  
 }
 
 export function initMap() {
@@ -65,8 +71,11 @@ export function addNode(lat, lng, name) {
     lng,
     size: 100,
     color: chroma.random().hex(),
+    name: name,
   });
 
+  // graphNodes.push(graph.getNodeAttribute(node, "id"));
+  graphNodes.push(graph.getNodeAttributes(node));
   const circle = L.circle([lat, lng], {
     color: 'red',
     radius: 30000, // Increase the radius to make the nodes bigger
@@ -94,7 +103,12 @@ function handleNodeClick(nodeId) {
 }
 
 function addEdge(node1Id, node2Id) {
+  console.log('node1Id inside addEdge', node1Id);
+  console.log('node2Id inside addEdge', node2Id);
+  
   const node1 = graph.getNodeAttributes(node1Id);
+  console.log('nodes value after getting the node', node1);
+  
   const node2 = graph.getNodeAttributes(node2Id);
 
   const polyline = L.polyline(
@@ -115,6 +129,40 @@ function addEdge(node1Id, node2Id) {
     offset: [0, -15],
   });
 }
+
+function displayDistanceToEdges(node1Id, node2Id, distance) {
+  console.log("Hvad værdierne er inde i node1Id", node1Id, node2Id, distance);
+  
+  const node1 = graph.getNodeAttributes(node1Id);
+  const node2 = graph.getNodeAttributes(node2Id);
+  
+
+  const polyline = L.polyline(
+    [
+      [node1.lat, node1.lng],
+      [node2.lat, node2.lng],
+    ],
+  ).addTo(map);
+
+  polyline.bindTooltip(`${distance}`, {
+    permanent: true,
+    direction: 'center',
+    className: 'polyline-label',
+    offset: [0, -15],
+  });
+}
+
+export function setDistancesToEdges(node) {
+  const distances = model.distancesFromNode(node);
+  console.log('node inside setDistancesToEdge', node);
+  
+  console.log('distances array', distances);
+  
+  for (let distance of distances) {
+    displayDistanceToEdges(node.id, distance.id, distance.dist);
+  }
+}
+
 
 export function addNodeWithConnection(node, targetNodeId) {
   graph.addNode(++nodeInstances, {

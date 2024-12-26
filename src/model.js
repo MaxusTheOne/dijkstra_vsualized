@@ -1,14 +1,17 @@
 import PrioQueue from './types/prioQueue';
+import * as controller from './controller.js';
+import * as view from './view.js';
 
-let nodes = []; // Main nodes
+export let nodes = []; // Main nodes
 let startNode;
 let visitedNodes = []; // Visited nodes
 let priorityQueue = new PrioQueue(); // Priority queue for Dijkstra
 export async function init() {
   await initNodes();
-  console.log("nodes", nodes);
+  console.log("model nodes", nodes);
   
-  dijkstra();
+  view.setDistancesToEdges(nodes[1])
+  //dijkstra();
 }
 
 // Node structure = {id: "Denmark", x: 0, y: 0, connections: ["Sweden", "Germany"]}
@@ -88,7 +91,7 @@ function dijkstra() {
 }
 
 // Calculate distances from a given node
-function distancesFromNode(node) {
+export function distancesFromNode(node) {
   let nodeConnections = [];
 
   for (let connection of node.connections) {
