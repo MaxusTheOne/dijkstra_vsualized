@@ -10,7 +10,6 @@ export let graph;
 let map;
 export let nodeInstances = 1;
 let selectedNodes = [];
-let isHoveringNode = false;
 
 export async function init() {
   console.log('view.js loaded');
@@ -29,7 +28,6 @@ export function initMap() {
 
   map.on('click', onMapClick);
 
-  console.log('map initialized', map);
 }
 
 function onMapClick(e) {
@@ -99,11 +97,6 @@ function addEdge(node1Id, node2Id) {
   const node1 = graph.getNodeAttributes(node1Id);
   const node2 = graph.getNodeAttributes(node2Id);
 
-  graph.addEdge(node1Id, node2Id, {
-    size: 5,
-    color: 'purple',
-  });
-
   const polyline = L.polyline(
     [
       [node1.lat, node1.lng],
@@ -119,8 +112,8 @@ function addEdge(node1Id, node2Id) {
     permanent: true,
     direction: 'center',
     className: 'polyline-label',
+    offset: [0, -15],
   });
-  console.log(`added edge between node ${node1Id} and node ${node2Id}`);
 }
 
 export function addNodeWithConnection(node, targetNodeId) {
@@ -146,7 +139,6 @@ async function loadJson() {
   await fetch('./src/nodes.json')
     .then((response) => response.json())
     .then((data) => {
-      console.log(data);
       data.nodes.forEach((node) => {
         addNode(node.lat, node.lng, node.name);
       });
