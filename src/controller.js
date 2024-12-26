@@ -11,6 +11,9 @@ function init() {
 
   model.init();
   view.init();
+
+  // Getting optimal path from Denmark to Goalland
+  // model.dijkstra('Denmark', 'Goalland');
 }
 
 export function addNode(x, y) {
