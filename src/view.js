@@ -88,6 +88,8 @@ function handleNodeClick(nodeId) {
   selectedNodes.push(nodeId);
   if (selectedNodes.length === 2) {
     const [node1, node2] = selectedNodes;
+    console.log("Adding edge between nodes", node1, node2);
+    
     addEdge(node1, node2);
     selectedNodes = [];
   }
@@ -96,7 +98,7 @@ function handleNodeClick(nodeId) {
 function addEdge(node1Id, node2Id) {
   const node1 = graph.getNodeAttributes(node1Id);
   const node2 = graph.getNodeAttributes(node2Id);
-
+  
   const polyline = L.polyline(
     [
       [node1.lat, node1.lng],
