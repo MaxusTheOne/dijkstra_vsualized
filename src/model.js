@@ -82,15 +82,15 @@ export function dijkstraAlgo(start, end) {
   distances[start.nodeId] = 0;
 
   // Enqueue the starting node
-  console.log(`enqueueing ${start.nodeId} with distance 0`);
+  // console.log(`enqueueing ${start.nodeId} with distance 0`);
   priorityQueue.enqueue(start, 0);
 
   while (!priorityQueue.isEmpty()) {
     let current = priorityQueue.dequeue(); // Get node with the smallest distance
-    console.log(`dequeueing ${current.node.nodeId} with distance ${current.priority}`);
+    // console.log(`dequeueing ${current.node.nodeId} with distance ${current.priority}`);
 
     if (current.node.nodeId === end.nodeId) {
-      console.log("found end node");
+      // console.log("found end node");
       return getOptimalRoute(start, end);
     }
     
@@ -100,7 +100,7 @@ export function dijkstraAlgo(start, end) {
     }
 
     // Mark as visited
-    console.log(`marking ${current.node.nodeId} as visited`);
+    // console.log(`marking ${current.node.nodeId} as visited`);
     findNodeByIdInVisited(current.node.nodeId).visited = true;
 
     // Process connections
@@ -113,17 +113,17 @@ export function dijkstraAlgo(start, end) {
       }
       let newDist = distances[current.node.nodeId] + connection.dist;
 
-      console.log(`Processing connection from ${current.node.nodeId} to ${neighbor.nodeId}`);
-      console.log(`Current distance to ${neighbor.nodeId}: ${distances[neighbor.nodeId]}`);
-      console.log(`New distance to ${neighbor.nodeId}: ${newDist}`);
+      // console.log(`Processing connection from ${current.node.nodeId} to ${neighbor.nodeId}`);
+      // console.log(`Current distance to ${neighbor.nodeId}: ${distances[neighbor.nodeId]}`);
+      // console.log(`New distance to ${neighbor.nodeId}: ${newDist}`);
 
       if (newDist < distances[neighbor.nodeId]) {
         distances[neighbor.nodeId] = newDist;
         previousNodes[neighbor.nodeId] = current.node.nodeId;
         priorityQueue.enqueue(neighbor, newDist);
-        console.log(`Updated distance for ${neighbor.nodeId}: ${newDist}`);
-        console.log(`Updated previous node for ${neighbor.nodeId}: ${current.node.nodeId}`);
-        console.log("New previousNodes map:", previousNodes);
+        // console.log(`Updated distance for ${neighbor.nodeId}: ${newDist}`);
+        // console.log(`Updated previous node for ${neighbor.nodeId}: ${current.node.nodeId}`);
+        // console.log("New previousNodes map:", previousNodes);
       }
     }
   }
@@ -132,7 +132,7 @@ export function dijkstraAlgo(start, end) {
 // Calculate distances from a given node
 function distancesFromNode(node) {
   let nodeConnections = [];
-  console.log("Node in distancesFromNode:", node);
+  // console.log("Node in distancesFromNode:", node);
   
   for (let connection of node.connections) {
     let connectedNode = findNodeById(connection);
@@ -170,6 +170,7 @@ export function getOptimalRoute(start, end) {
     path.unshift(start.nodeId);
   }
   console.log("path", path);
+  console.log("Distances:", distances);
   
   return path;
 }
