@@ -7,7 +7,8 @@ let priorityQueue = new PrioQueue(); // Priority queue for Dijkstra
 let distances = {};
 let previousNodes = {};
 export async function init() {
-  let path = dijkstra("Denmark", "Goalland");
+  let path = await dijkstra("Italy", "Goalland");
+  console.log("Path:", path); 
 }
 
 // Node structure = {id: "Denmark", x: 0, y: 0, connections: ["Sweden", "Germany"]}
