@@ -9,11 +9,11 @@ async function init() {
     .querySelector('#input_button')
     .addEventListener('click', handleNodeSelection);
 
-  await model.init();
   view.init();
+  await model.init();
   console.log('model.nodes', model.nodes);
-  
-  view.setDistancesToEdges(model.nodes[1]);
+
+  view.setDistancesToEdges(model.nodes[0]);
 
   // Getting optimal path from Denmark to Goalland
   // model.dijkstra('Denmark', 'Goalland');

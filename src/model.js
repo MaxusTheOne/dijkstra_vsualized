@@ -110,7 +110,6 @@ export function distancesFromNode(node) {
     let dist = getNodeDist(node, connectedNode);
     nodeConnections.push({ id: connectedNode.nodeId, dist });
   }
-  console.log(nodeConnections);
   
   return nodeConnections;
 }

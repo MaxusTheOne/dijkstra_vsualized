@@ -12,7 +12,6 @@ let edges = {};
 let map;
 export let nodeInstances = 1;
 let selectedNodes = [];
-let polines = [];
 
 export async function init() {
   console.log('view.js loaded');
@@ -23,6 +22,8 @@ export async function init() {
   // removeLabels('Denmark', 'Sweden');
   // removeLabels('Denmark', 'Germany');
   console.log('visuel nodes', graphNodes);
+  console.log("graph nodes", graph.nodes());
+  
 }
 
 export function initMap() {
@@ -131,31 +132,19 @@ function addEdge(node1Id, node2Id) {
   });
 
   edges[edgeKey] = polyline
-  console.log('edges', edges);
-  
-  
 }
 
 function removeLabels(node1, node2) {
-  console.log('removeLabels', node1, node2);
-  
   const edgeKey = `${node1}-${node2}`;
-  console.log(node1, node2);
-  console.log('edges inside removeLabels', edges['Denmark-Germany']);
-  
-  console.log('edgeKey', edgeKey);
   if (edges[edgeKey]) {
-    console.log('inside if');
     edges[edgeKey].unbindTooltip();
   }
-  // edges[edgeKey].unbindTooltip();
 }
 
 function displayDistanceToEdges(node1Id, node2Id, distance) {
   const node1 = graph.getNodeAttributes(node1Id);
   const node2 = graph.getNodeAttributes(node2Id);
   // Add new polyline with updated label
-  console.log(node1Id, node2Id);
   
   
   const polyline = L.polyline(
@@ -164,13 +153,13 @@ function displayDistanceToEdges(node1Id, node2Id, distance) {
       [node2.lat, node2.lng],
     ],
     {
-      color: 'blue', // Optional: Set color for the polyline
+      color: 'purple', // Optional: Set color for the polyline
       weight: 4, // Optional: Set weight for the polyline
     }
   ).addTo(map);
   
   removeLabels(node1Id, node2Id);
-  polyline.bindTooltip(`${distance}`, {
+  polyline.bindTooltip(`${(distance).toFixed(2)}`, {
     permanent: true,
     direction: 'center',
     className: 'polyline-label',
