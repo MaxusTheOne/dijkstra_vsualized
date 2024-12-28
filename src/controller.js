@@ -11,6 +11,7 @@ function init() {
 
   model.init();
   view.init();
+  view.setDistancesToEdges(model.nodes[1]);
 }
 
 export function addNode(x, y) {

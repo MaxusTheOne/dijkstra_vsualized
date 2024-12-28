@@ -8,20 +8,21 @@ import L from 'leaflet';
 
 export let graph;
 let graphNodes = [];
-let graphEdges = [];
+let edges = {};
 let map;
 export let nodeInstances = 1;
 let selectedNodes = [];
+let polines = [];
 
 export async function init() {
   console.log('view.js loaded');
-  
+
   initMap();
   initGraph();
   await loadJson();
-  console.log("visuel nodes", graphNodes);
-  console.log("visuel edges", graphEdges);
-  
+  // removeLabels('Denmark', 'Sweden');
+  // removeLabels('Denmark', 'Germany');
+  console.log('visuel nodes', graphNodes);
 }
 
 export function initMap() {
@@ -33,7 +34,6 @@ export function initMap() {
   }).addTo(map);
 
   map.on('click', onMapClick);
-
 }
 
 function onMapClick(e) {
@@ -72,6 +72,7 @@ export function addNode(lat, lng, name) {
     size: 100,
     color: chroma.random().hex(),
     name: name,
+    nodeId: nodeId.toString(),
   });
 
   // graphNodes.push(graph.getNodeAttribute(node, "id"));
@@ -93,6 +94,7 @@ export function addNode(lat, lng, name) {
   });
 }
 
+
 function handleNodeClick(nodeId) {
   selectedNodes.push(nodeId);
   if (selectedNodes.length === 2) {
@@ -103,13 +105,10 @@ function handleNodeClick(nodeId) {
 }
 
 function addEdge(node1Id, node2Id) {
-  console.log('node1Id inside addEdge', node1Id);
-  console.log('node2Id inside addEdge', node2Id);
-  
   const node1 = graph.getNodeAttributes(node1Id);
-  console.log('nodes value after getting the node', node1);
-  
   const node2 = graph.getNodeAttributes(node2Id);
+
+  const edgeKey = `${node1.name}-${node2.name}`;
 
   const polyline = L.polyline(
     [
@@ -118,7 +117,7 @@ function addEdge(node1Id, node2Id) {
     ],
     {
       color: 'purple',
-      weight: 5,
+      weight: 4,
     }
   ).addTo(map);
 
@@ -128,22 +127,47 @@ function addEdge(node1Id, node2Id) {
     className: 'polyline-label',
     offset: [0, -15],
   });
+
+  edges[edgeKey] = polyline
+  console.log('edges', edges);
+  
+  
+}
+
+function removeLabels(node1, node2) {
+  console.log('removeLabels', node1, node2);
+  
+  const edgeKey = `${node1}-${node2}`;
+  console.log(node1, node2);
+  console.log('edges inside removeLabels', edges['Denmark-Germany']);
+  
+  console.log('edgeKey', edgeKey);
+  if (edges[edgeKey]) {
+    console.log('inside if');
+    edges[edgeKey].unbindTooltip();
+  }
+  // edges[edgeKey].unbindTooltip();
 }
 
 function displayDistanceToEdges(node1Id, node2Id, distance) {
-  console.log("Hvad værdierne er inde i node1Id", node1Id, node2Id, distance);
-  
   const node1 = graph.getNodeAttributes(node1Id);
   const node2 = graph.getNodeAttributes(node2Id);
+  // Add new polyline with updated label
+  console.log(node1Id, node2Id);
   
-
+  
   const polyline = L.polyline(
     [
       [node1.lat, node1.lng],
       [node2.lat, node2.lng],
     ],
+    {
+      color: 'blue', // Optional: Set color for the polyline
+      weight: 4, // Optional: Set weight for the polyline
+    }
   ).addTo(map);
-
+  
+  removeLabels(node1Id, node2Id);
   polyline.bindTooltip(`${distance}`, {
     permanent: true,
     direction: 'center',
@@ -154,15 +178,11 @@ function displayDistanceToEdges(node1Id, node2Id, distance) {
 
 export function setDistancesToEdges(node) {
   const distances = model.distancesFromNode(node);
-  console.log('node inside setDistancesToEdge', node);
-  
-  console.log('distances array', distances);
-  
+
   for (let distance of distances) {
-    displayDistanceToEdges(node.id, distance.id, distance.dist);
+    displayDistanceToEdges(node.name, distance.id, distance.dist);
   }
 }
-
 
 export function addNodeWithConnection(node, targetNodeId) {
   graph.addNode(++nodeInstances, {
@@ -188,7 +208,7 @@ async function loadJson() {
     .then((response) => response.json())
     .then((data) => {
       data.nodes.forEach((node) => {
-        addNode(node.lat, node.lng, node.name);
+        addNode(node.lat, node.lng, node.name, node.nodeId);
       });
       data.edges.forEach((edge) => {
         addEdge(edge.source, edge.target);

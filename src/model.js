@@ -1,5 +1,4 @@
 import PrioQueue from './types/prioQueue';
-import * as controller from './controller.js';
 import * as view from './view.js';
 
 export let nodes = []; // Main nodes
@@ -8,9 +7,8 @@ let visitedNodes = []; // Visited nodes
 let priorityQueue = new PrioQueue(); // Priority queue for Dijkstra
 export async function init() {
   await initNodes();
-  console.log("model nodes", nodes);
-  
-  view.setDistancesToEdges(nodes[1])
+  console.log('model nodes', nodes);
+
   //dijkstra();
 }
 
@@ -45,6 +43,10 @@ async function initNodes() {
       ...node,
       id: node.name,
     });
+  });
+
+  nodes.forEach((node) => {
+    view.graph.addNode(node.id, node);
   });
   startNode = nodes[1];
 }
