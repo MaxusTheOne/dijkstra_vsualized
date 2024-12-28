@@ -99,6 +99,8 @@ function handleNodeClick(nodeId) {
   selectedNodes.push(nodeId);
   if (selectedNodes.length === 2) {
     const [node1, node2] = selectedNodes;
+    console.log("Adding edge between nodes", node1, node2);
+    
     addEdge(node1, node2);
     selectedNodes = [];
   }
@@ -108,7 +110,7 @@ function addEdge(node1Id, node2Id) {
   const node1 = graph.getNodeAttributes(node1Id);
   const node2 = graph.getNodeAttributes(node2Id);
 
-  const edgeKey = `${node1.name}-${node2.name}`;
+  const edgeKey = `${node1Id}-${node2Id}`;
 
   const polyline = L.polyline(
     [
@@ -180,7 +182,7 @@ export function setDistancesToEdges(node) {
   const distances = model.distancesFromNode(node);
 
   for (let distance of distances) {
-    displayDistanceToEdges(node.name, distance.id, distance.dist);
+    displayDistanceToEdges(node.nodeId, distance.id, distance.dist);
   }
 }
 

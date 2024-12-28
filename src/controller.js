@@ -3,15 +3,20 @@ import * as view from './view.js';
 
 window.addEventListener('load', init);
 
-function init() {
+async function init() {
   console.log('controller.js loaded');
   document
     .querySelector('#input_button')
     .addEventListener('click', handleNodeSelection);
 
-  model.init();
+  await model.init();
   view.init();
+  console.log('model.nodes', model.nodes);
+  
   view.setDistancesToEdges(model.nodes[1]);
+
+  // Getting optimal path from Denmark to Goalland
+  // model.dijkstra('Denmark', 'Goalland');
 }
 
 export function addNode(x, y) {
