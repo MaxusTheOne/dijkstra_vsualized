@@ -71,9 +71,8 @@ export async function dijkstraAlgo(start, end) {
 
   while (!priorityQueue.isEmpty()) {
     let current = priorityQueue.dequeue(); // Get node with the smallest distance
-    //LAV EN PAUSE FUNKTION DER KALDES HER
-    // view.highlightNode(current);
-    // await controller.pauseDijkstra(5000);
+    //Her highlightes den node der processeres lige nu
+    view.highlightNode(current);
     if (current.node.nodeId === end.nodeId) {
       return getOptimalRoute(start, end);
     }
@@ -102,21 +101,26 @@ export async function dijkstraAlgo(start, end) {
         priorityQueue.enqueue(neighbor, newDist);
       }
     }
+    await controller.pauseDijkstra(5000);
   }
   return [];
 }
 // Calculate distances from a given node
 export function distancesFromNode(node) {
   let nodeConnections = [];
-
   for (let connection of node.connections) {
     let connectedNode = findNodeById(connection);
     let dist = getNodeDist(node, connectedNode);
     nodeConnections.push({ id: connectedNode.nodeId, dist });
   }
 
+  //Her highlighter vi edges fra den current node til dens connections
+  for (let distance of nodeConnections) {
+    view.highlightEdge(node.nodeId, distance.id);
+  }
   return nodeConnections;
 }
+
 export function getOptimalRoute(start, end) {
   let path = [];
   let currentNode = end.nodeId;
