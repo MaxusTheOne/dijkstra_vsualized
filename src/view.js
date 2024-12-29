@@ -217,7 +217,7 @@ export async function colorCircle(lat, lng, name) {
     { color: 'yellow', radius: 30000 }
   ).addTo(map);
 
-  circle.bindTooltip(`IN FOCUS`, {
+  circle.bindTooltip(`${name} IN FOCUS`, {
     permanent: true,
     direction: 'center',
     className: 'polyline-label',
@@ -229,6 +229,30 @@ export async function colorCircle(lat, lng, name) {
   circle.remove();
 }
 
+export async function highlightEdge(nodeId1, nodeId2) {
+  const node1 = graph.getNodeAttributes(nodeId1);
+  const node2 = graph.getNodeAttributes(nodeId2);
+  const polyline = L.polyline(
+    [
+      [node1.lat, node1.lng],
+      [node2.lat, node2.lng],
+    ],
+    {
+      color: 'red', // Optional: Set color for the polyline
+      weight: 4, // Optional: Set weight for the polyline
+    }
+  ).addTo(map);
+  await controller.pauseDijkstra(5000);
+  polyline.remove();
+}
+
+// export function findEdgeFromNode(node) {
+//   const distances = model.distancesFromNode(node);
+
+//   for (let distance of distances) {
+//     highlightEdge(node.nodeId, distance.id);
+//   }
+// }
 function addConnectionToSchema(node1, node2) {
   let schema = document.querySelector('#connections');
 
