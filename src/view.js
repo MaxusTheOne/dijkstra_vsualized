@@ -21,10 +21,6 @@ export async function init() {
   initMap();
   initGraph();
   await loadJson();
-  // removeLabels('Denmark', 'Sweden');
-  // removeLabels('Denmark', 'Germany');
-  console.log('visuel nodes', graphNodes);
-  console.log('graph nodes', graph.nodes());
 }
 
 export function initMap() {
@@ -204,4 +200,33 @@ async function loadJson() {
         addEdge(edge.source, edge.target);
       });
     });
+}
+
+function addConnectionToSchema(node1, node2) {
+  let schema = document.querySelector('#connections');
+
+  let connectionContainer = document.createElement('div');
+  connectionContainer.classList.add('connection');
+  connectionContainer.innerHTML = `
+  <span class="from">${node1}</span> to <span class="to">${node2}</span>
+  `;
+
+  schema.appendChild(connectionContainer);
+}
+
+export function addPathToSchema(path) {
+  let schema = document.querySelector('#connections');
+
+  let connectionContainer = document.createElement('div');
+  connectionContainer.classList.add('connection');
+
+  for (let i = 0; i < path.length - 1; i++) {
+    let node1 = model.findNodeById(path[i]);
+    let node2 = model.findNodeById(path[i + 1]);
+    if (node1 && node2) {
+      addConnectionToSchema(node1.name, node2.name);
+    }
+  }
+
+  schema.appendChild(connectionContainer);
 }

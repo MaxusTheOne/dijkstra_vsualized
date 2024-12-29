@@ -1,5 +1,4 @@
 import PrioQueue from './types/prioQueue';
-import * as view from './view.js';
 
 export let nodes = []; // Main nodes
 let startNode;
@@ -8,12 +7,11 @@ let priorityQueue = new PrioQueue(); // Priority queue for Dijkstra
 let distances = {};
 let previousNodes = {};
 export async function init() {
-  let path = await dijkstra("Italy", "Goalland");
-  console.log("Path:", path); 
+  await initNodes();
 }
 
 // Node structure = {id: "Denmark", x: 0, y: 0, connections: ["Sweden", "Germany"]}
-async function initNodes() {
+export async function initNodes() {
   let fetchedNodes;
   let fetchedConnections;
   await fetch('./src/nodes.json')
@@ -40,7 +38,7 @@ async function initNodes() {
       connection1.connections.push(connection2.nodeId);
       connection2.connections.push(connection1.nodeId);
     } else {
-      console.error("Connection not found for nodes:", connection);
+      console.error('Connection not found for nodes:', connection);
     }
   });
   nodes = fetchedNodes;
@@ -55,12 +53,14 @@ export function dijkstraAlgo(start, end) {
   // Convert start and end to node objects
   start = findNodeByName(start);
   end = findNodeByName(end);
-  
+  console.log('Start:', start);
+  console.log('End:', end);
+
   if (!start || !end) {
     console.error('Start or end node not found');
     return [];
   }
-  
+
   initVisitedNodes();
   distances[start.nodeId] = 0;
 
@@ -73,7 +73,7 @@ export function dijkstraAlgo(start, end) {
     if (current.node.nodeId === end.nodeId) {
       return getOptimalRoute(start, end);
     }
-    
+
     // Skip if already visited
     if (findNodeByIdInVisited(current.node.nodeId).visited) {
       continue;
@@ -104,13 +104,13 @@ export function dijkstraAlgo(start, end) {
 // Calculate distances from a given node
 export function distancesFromNode(node) {
   let nodeConnections = [];
-  
+
   for (let connection of node.connections) {
     let connectedNode = findNodeById(connection);
     let dist = getNodeDist(node, connectedNode);
     nodeConnections.push({ id: connectedNode.nodeId, dist });
   }
-  
+
   return nodeConnections;
 }
 export function getOptimalRoute(start, end) {
@@ -119,10 +119,10 @@ export function getOptimalRoute(start, end) {
 
   let safetyCounter = 0; // Safety counter to prevent infinite loop
   const maxIterations = 1000; // Adjust this value as needed
-  
+
   while (currentNode !== null && currentNode !== start.nodeId) {
     if (safetyCounter > maxIterations) {
-      console.error("Infinite loop detected in getOptimalRoute");
+      console.error('Infinite loop detected in getOptimalRoute');
       break;
     }
     path.unshift(currentNode);
@@ -134,7 +134,7 @@ export function getOptimalRoute(start, end) {
   if (currentNode === start.nodeId) {
     path.unshift(start.nodeId);
   }
-  
+
   return path;
 }
 
@@ -159,7 +159,7 @@ export function findNodeByName(nodeName) {
   return node;
 }
 
-function findNodeById(nodeId) {
+export function findNodeById(nodeId) {
   const node = nodes.find((node) => node.nodeId === nodeId);
   if (!node) {
     console.error(`Node ${nodeId} not found`);

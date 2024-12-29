@@ -54,7 +54,6 @@
   font-size: 12px;
 }
 
-
 #input {
   position: fixed;
   bottom: 10px;
@@ -64,4 +63,46 @@
   padding: 10px;
   border-radius: 5px;
   border: 1px solid black;
+}
+
+/* SCHEMA STYLING */
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f0f0f0;
+}
+
+#connections {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  padding: 20px;
+  border-radius: 5px;
+  max-width: 400px;
+  z-index: 4; /* Ensure this is higher than #input */
+}
+
+h1 {
+  text-align: center;
+  color: #333;
+}
+
+.connection {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.connection:last-child {
+  border-bottom: none;
+}
+
+.from {
+  font-weight: bold;
+  color: #007bff;
+}
+
+.to {
+  font-weight: bold;
+  color: #28a745;
 }

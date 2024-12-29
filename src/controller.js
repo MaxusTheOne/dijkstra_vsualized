@@ -17,6 +17,10 @@ async function init() {
 
   // Getting optimal path from Denmark to Goalland
   // model.dijkstra('Denmark', 'Goalland');
+  let path = await model.dijkstra('Italy', 'Goalland');
+  console.log('Path:', path);
+
+  view.addPathToSchema(path);
 }
 
 export function addNode(x, y) {
