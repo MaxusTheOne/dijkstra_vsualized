@@ -42,3 +42,12 @@ function handleNodeSelection(e) {
   console.log('Start Node:', startNode);
   console.log('End Node:', endNode);
 }
+
+export async function pauseDijkstra(pauseTime) {
+  return new Promise(resolve => {
+    setTimeout(() => {
+      resolve();
+      console.log("Paused dijkstra");
+    }, pauseTime);
+  });
+}

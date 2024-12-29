@@ -49,12 +49,10 @@ export async function dijkstra(start, end) {
   return dijkstraAlgo(start, end);
 }
 
-export function dijkstraAlgo(start, end) {
+export async function dijkstraAlgo(start, end) {
   // Convert start and end to node objects
   start = findNodeByName(start);
   end = findNodeByName(end);
-  console.log('Start:', start);
-  console.log('End:', end);
 
   if (!start || !end) {
     console.error('Start or end node not found');
@@ -69,7 +67,9 @@ export function dijkstraAlgo(start, end) {
 
   while (!priorityQueue.isEmpty()) {
     let current = priorityQueue.dequeue(); // Get node with the smallest distance
-
+    //LAV EN PAUSE FUNKTION DER KALDES HER
+    // view.highlightNode(current);
+    // await controller.pauseDijkstra(5000);
     if (current.node.nodeId === end.nodeId) {
       return getOptimalRoute(start, end);
     }

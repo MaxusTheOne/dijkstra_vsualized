@@ -4,6 +4,7 @@ import chroma from 'chroma-js';
 import Graph from 'graphology';
 import L from 'leaflet';
 
+import * as controller from './controller.js';
 import * as model from './model.js';
 
 // import { Settings } from "sigma/src/settings";
@@ -11,6 +12,7 @@ import * as model from './model.js';
 export let graph;
 let graphNodes = [];
 let edges = {};
+let circles = [];
 let map;
 export let nodeInstances = 1;
 let selectedNodes = [];
@@ -128,6 +130,7 @@ function addEdge(node1Id, node2Id) {
   });
 
   edges[edgeKey] = polyline;
+  edges[edgeKey] = polyline;
 }
 
 function removeLabels(node1, node2) {
@@ -200,6 +203,30 @@ async function loadJson() {
         addEdge(edge.source, edge.target);
       });
     });
+}
+
+export async function highlightNode(currentNodeObj) {
+  const currentNodeId = currentNodeObj.node.nodeId;
+  const { lat, lng, name } = graph.getNodeAttributes(currentNodeId);
+  colorCircle(lat, lng, name);
+}
+
+export async function colorCircle(lat, lng, name) {
+  const circle = L.circle(
+    { lat, lng },
+    { color: 'yellow', radius: 30000 }
+  ).addTo(map);
+
+  circle.bindTooltip(`IN FOCUS`, {
+    permanent: true,
+    direction: 'center',
+    className: 'polyline-label',
+    direction: 'top',
+  });
+
+  await controller.pauseDijkstra(5000);
+
+  circle.remove();
 }
 
 function addConnectionToSchema(node1, node2) {
