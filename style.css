@@ -106,3 +106,7 @@ h1 {
   font-weight: bold;
   color: #28a745;
 }
+.highlight {
+  border: 1px solid #1c972d;
+  font-weight: bold;
+}

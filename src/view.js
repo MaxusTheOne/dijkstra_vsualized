@@ -23,6 +23,10 @@ export async function init() {
   initMap();
   initGraph();
   await loadJson();
+
+  document
+    .querySelector('#input_button')
+    .addEventListener('click', handleNodeSelection);
 }
 
 export function initMap() {
@@ -224,7 +228,7 @@ export async function colorCircle(lat, lng, name) {
     direction: 'top',
   });
 
-  await controller.pauseDijkstra(5000);
+  await controller.pauseDijkstra(500);
 
   circle.remove();
 }
@@ -242,13 +246,26 @@ export async function highlightEdge(nodeId1, nodeId2) {
       weight: 4, // Optional: Set weight for the polyline
     }
   ).addTo(map);
-  await controller.pauseDijkstra(5000);
+  await controller.pauseDijkstra(500);
   polyline.remove();
+}
+export async function highlightEdgeForPath(nodeId1, nodeId2) {
+  const node1 = graph.getNodeAttributes(nodeId1);
+  const node2 = graph.getNodeAttributes(nodeId2);
+  const polyline = L.polyline(
+    [
+      [node1.lat, node1.lng],
+      [node2.lat, node2.lng],
+    ],
+    {
+      color: 'green', // Optional: Set color for the polyline
+      weight: 4, // Optional: Set weight for the polyline
+    }
+  ).addTo(map);
 }
 
 // export function findEdgeFromNode(node) {
 //   const distances = model.distancesFromNode(node);
-
 //   for (let distance of distances) {
 //     highlightEdge(node.nodeId, distance.id);
 //   }
@@ -258,6 +275,7 @@ function addConnectionToSchema(node1, node2) {
 
   let connectionContainer = document.createElement('div');
   connectionContainer.classList.add('connection');
+  connectionContainer.id = `${node1}-connection`;
   connectionContainer.innerHTML = `
   <span class="from">${node1}</span> to <span class="to">${node2}</span>
   `;
@@ -280,4 +298,56 @@ export function addPathToSchema(path) {
   }
 
   schema.appendChild(connectionContainer);
+}
+
+export function setSchemaToNodeList(nodeList) {
+  let schema = document.querySelector('#connections');
+  schema.innerHTML = '';
+
+  for (let nodeId in nodeList) {
+    let node = model.findNodeById(nodeId);
+    if (!nodeList[nodeId]) {
+      continue;
+    }
+    let connectedNode = model.findNodeById(nodeList[nodeId]);
+    addConnectionToSchema(node.name, connectedNode.name);
+  }
+}
+
+export async function highlightPath(path) {
+  let schema = document.querySelector('#connections');
+  let connections = schema.querySelectorAll('.connection');
+  let countryNames = path.map((nodeId) => model.findNodeById(nodeId).name);
+  for (let connection of connections) {
+    connection.classList.remove('highlight');
+    if (
+      countryNames.includes(connection.querySelector('.from').innerText) &&
+      countryNames.includes(connection.querySelector('.to').innerText)
+    ) {
+      connection.classList.add('highlight');
+    }
+  }
+  for (let i = path.length - 1; i > 0; i--) {
+    await controller.pauseDijkstra(500);
+    await highlightEdgeForPath(path[i], path[i - 1]);
+  }
+}
+
+function handleNodeSelection(e) {
+  e.preventDefault();
+
+  // find startnode by name in nodes
+  const inputStart = document.querySelector('#input_start').value;
+  const startNode = model.findNodeByName(inputStart);
+
+  // find endnode by name in nodes
+  const inputEnd = document.querySelector('#input_goal').value;
+  const endNode = model.findNodeByName(inputEnd);
+
+  // Print the found nodes
+  console.log('Start Node:', startNode);
+  console.log('End Node:', endNode);
+
+  // Start Dijkstra
+  controller.startDijkstra(startNode.name, endNode.name);
 }

@@ -1,4 +1,6 @@
+import * as controller from './controller';
 import PrioQueue from './types/prioQueue';
+import * as view from './view';
 
 export let nodes = []; // Main nodes
 let startNode;
@@ -6,6 +8,7 @@ let visitedNodes = []; // Visited nodes
 let priorityQueue = new PrioQueue(); // Priority queue for Dijkstra
 let distances = {};
 let previousNodes = {};
+
 export async function init() {
   await initNodes();
 }
@@ -95,9 +98,10 @@ export async function dijkstraAlgo(start, end) {
         distances[neighbor.nodeId] = newDist;
         previousNodes[neighbor.nodeId] = current.node.nodeId;
         priorityQueue.enqueue(neighbor, newDist);
+        view.setSchemaToNodeList(previousNodes);
       }
     }
-    await controller.pauseDijkstra(5000);
+    await controller.pauseDijkstra(500);
   }
   return [];
 }
@@ -173,4 +177,22 @@ export function findNodeById(nodeId) {
 
 function findNodeByIdInVisited(nodeId) {
   return visitedNodes.find((node) => node.id === nodeId);
+}
+function handleNodeSelection(e) {
+  e.preventDefault();
+
+  // find startnode by name in nodes
+  const inputStart = document.querySelector('#input_start').value;
+  const startNode = model.findNodeByName(inputStart);
+
+  // find endnode by name in nodes
+  const inputEnd = document.querySelector('#input_goal').value;
+  const endNode = model.findNodeByName(inputEnd);
+
+  // Print the found nodes
+  console.log('Start Node:', startNode);
+  console.log('End Node:', endNode);
+
+  // Start Dijkstra
+  controller.startDijkstra(startNode.name, endNode.name);
 }
