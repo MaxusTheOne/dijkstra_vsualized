@@ -1,5 +1,7 @@
+import { pauseDijkstra } from './controller.js';
 import PrioQueue from './types/prioQueue';
 import * as view from './view.js';
+import * as controller from "./controller.js";
 
 export let nodes = []; // Main nodes
 let startNode;
@@ -9,7 +11,7 @@ let distances = {};
 let previousNodes = {};
 export async function init() {
   let path = await dijkstra("Italy", "Goalland");
-  console.log("Path:", path); 
+  console.log("Path:", path);
 }
 
 // Node structure = {id: "Denmark", x: 0, y: 0, connections: ["Sweden", "Germany"]}
@@ -51,16 +53,16 @@ export async function dijkstra(start, end) {
   return dijkstraAlgo(start, end);
 }
 
-export function dijkstraAlgo(start, end) {
+export async function dijkstraAlgo(start, end) {
   // Convert start and end to node objects
   start = findNodeByName(start);
   end = findNodeByName(end);
-  
+
   if (!start || !end) {
     console.error('Start or end node not found');
     return [];
   }
-  
+
   initVisitedNodes();
   distances[start.nodeId] = 0;
 
@@ -69,11 +71,13 @@ export function dijkstraAlgo(start, end) {
 
   while (!priorityQueue.isEmpty()) {
     let current = priorityQueue.dequeue(); // Get node with the smallest distance
-
+    //LAV EN PAUSE FUNKTION DER KALDES HER
+    // view.highlightNode(current);
+    // await controller.pauseDijkstra(5000);
     if (current.node.nodeId === end.nodeId) {
       return getOptimalRoute(start, end);
     }
-    
+
     // Skip if already visited
     if (findNodeByIdInVisited(current.node.nodeId).visited) {
       continue;
@@ -104,13 +108,13 @@ export function dijkstraAlgo(start, end) {
 // Calculate distances from a given node
 export function distancesFromNode(node) {
   let nodeConnections = [];
-  
+
   for (let connection of node.connections) {
     let connectedNode = findNodeById(connection);
     let dist = getNodeDist(node, connectedNode);
     nodeConnections.push({ id: connectedNode.nodeId, dist });
   }
-  
+
   return nodeConnections;
 }
 export function getOptimalRoute(start, end) {
@@ -119,7 +123,7 @@ export function getOptimalRoute(start, end) {
 
   let safetyCounter = 0; // Safety counter to prevent infinite loop
   const maxIterations = 1000; // Adjust this value as needed
-  
+
   while (currentNode !== null && currentNode !== start.nodeId) {
     if (safetyCounter > maxIterations) {
       console.error("Infinite loop detected in getOptimalRoute");
@@ -134,7 +138,7 @@ export function getOptimalRoute(start, end) {
   if (currentNode === start.nodeId) {
     path.unshift(start.nodeId);
   }
-  
+
   return path;
 }
 

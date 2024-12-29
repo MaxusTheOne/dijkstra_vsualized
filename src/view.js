@@ -2,13 +2,15 @@ import 'leaflet/dist/leaflet.css';
 import * as model from './model.js';
 import chroma from 'chroma-js';
 import Graph from 'graphology';
-import L from 'leaflet';
+import L, { circle } from 'leaflet';
+import * as controller from "./controller.js";
 
 // import { Settings } from "sigma/src/settings";
 
 export let graph;
 let graphNodes = [];
 let edges = {};
+let circles = [];
 let map;
 export let nodeInstances = 1;
 let selectedNodes = [];
@@ -23,7 +25,6 @@ export async function init() {
   // removeLabels('Denmark', 'Germany');
   console.log('visuel nodes', graphNodes);
   console.log("graph nodes", graph.nodes());
-  
 }
 
 export function initMap() {
@@ -101,7 +102,7 @@ function handleNodeClick(nodeId) {
   if (selectedNodes.length === 2) {
     const [node1, node2] = selectedNodes;
     console.log("Adding edge between nodes", node1, node2);
-    
+
     addEdge(node1, node2);
     selectedNodes = [];
   }
@@ -131,7 +132,7 @@ function addEdge(node1Id, node2Id) {
     offset: [0, -15],
   });
 
-  edges[edgeKey] = polyline
+  edges[edgeKey] = polyline;
 }
 
 function removeLabels(node1, node2) {
@@ -145,8 +146,8 @@ function displayDistanceToEdges(node1Id, node2Id, distance) {
   const node1 = graph.getNodeAttributes(node1Id);
   const node2 = graph.getNodeAttributes(node2Id);
   // Add new polyline with updated label
-  
-  
+
+
   const polyline = L.polyline(
     [
       [node1.lat, node1.lng],
@@ -157,7 +158,7 @@ function displayDistanceToEdges(node1Id, node2Id, distance) {
       weight: 4, // Optional: Set weight for the polyline
     }
   ).addTo(map);
-  
+
   removeLabels(node1Id, node2Id);
   polyline.bindTooltip(`${(distance).toFixed(2)}`, {
     permanent: true,
@@ -206,3 +207,21 @@ async function loadJson() {
       });
     });
 }
+
+export async function highlightNode(currentNodeObj) {
+  const currentNodeId = currentNodeObj.node.nodeId;
+  const { lat, lng, name } = graph.getNodeAttributes(currentNodeId);
+  colorCircle(lat, lng, name);
+}
+
+export async function colorCircle(lat, lng, name) {
+
+  const circle = L.circle({ lat, lng }, { color: "yellow", radius: 30000 }).addTo(map);
+
+  circle.bindTooltip(`IN FOCUS`, { permanent: true, direction: "center", className: "polyline-label", direction: "top" });
+
+  await controller.pauseDijkstra(5000);
+
+  circle.remove();
+}
+
