@@ -1,8 +1,10 @@
 import 'leaflet/dist/leaflet.css';
-import * as model from './model.js';
+
 import chroma from 'chroma-js';
 import Graph from 'graphology';
 import L from 'leaflet';
+
+import * as model from './model.js';
 
 // import { Settings } from "sigma/src/settings";
 
@@ -22,8 +24,7 @@ export async function init() {
   // removeLabels('Denmark', 'Sweden');
   // removeLabels('Denmark', 'Germany');
   console.log('visuel nodes', graphNodes);
-  console.log("graph nodes", graph.nodes());
-  
+  console.log('graph nodes', graph.nodes());
 }
 
 export function initMap() {
@@ -95,13 +96,12 @@ export function addNode(lat, lng, name) {
   });
 }
 
-
 function handleNodeClick(nodeId) {
   selectedNodes.push(nodeId);
   if (selectedNodes.length === 2) {
     const [node1, node2] = selectedNodes;
-    console.log("Adding edge between nodes", node1, node2);
-    
+    console.log('Adding edge between nodes', node1, node2);
+
     addEdge(node1, node2);
     selectedNodes = [];
   }
@@ -131,7 +131,7 @@ function addEdge(node1Id, node2Id) {
     offset: [0, -15],
   });
 
-  edges[edgeKey] = polyline
+  edges[edgeKey] = polyline;
 }
 
 function removeLabels(node1, node2) {
@@ -145,8 +145,7 @@ function displayDistanceToEdges(node1Id, node2Id, distance) {
   const node1 = graph.getNodeAttributes(node1Id);
   const node2 = graph.getNodeAttributes(node2Id);
   // Add new polyline with updated label
-  
-  
+
   const polyline = L.polyline(
     [
       [node1.lat, node1.lng],
@@ -157,9 +156,9 @@ function displayDistanceToEdges(node1Id, node2Id, distance) {
       weight: 4, // Optional: Set weight for the polyline
     }
   ).addTo(map);
-  
+
   removeLabels(node1Id, node2Id);
-  polyline.bindTooltip(`${(distance).toFixed(2)}`, {
+  polyline.bindTooltip(`${distance.toFixed(2)}`, {
     permanent: true,
     direction: 'center',
     className: 'polyline-label',
