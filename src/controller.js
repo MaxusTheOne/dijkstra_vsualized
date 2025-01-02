@@ -32,5 +32,5 @@ export async function startDijkstra(country1, country2) {
   console.log('Path:', path);
 
   view.highlightPath(path);
-  return path
+  return path;
 }
