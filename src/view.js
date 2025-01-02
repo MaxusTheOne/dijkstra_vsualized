@@ -277,7 +277,7 @@ function addConnectionToSchema(node1, node2) {
   connectionContainer.classList.add('connection');
   connectionContainer.id = `${node1}-connection`;
   connectionContainer.innerHTML = `
-  <span class="from">${node1}</span> to <span class="to">${node2}</span>
+  <span class="from">${node2}</span> to <span class="to">${node1}</span>
   `;
 
   schema.appendChild(connectionContainer);
@@ -333,7 +333,7 @@ export async function highlightPath(path) {
   }
 }
 
-function handleNodeSelection(e) {
+async function handleNodeSelection(e) {
   e.preventDefault();
 
   // find startnode by name in nodes
@@ -349,5 +349,37 @@ function handleNodeSelection(e) {
   console.log('End Node:', endNode);
 
   // Start Dijkstra
-  controller.startDijkstra(startNode.name, endNode.name);
+  let path = await controller.startDijkstra(startNode.name, endNode.name);
+
+  path = path.map(nodeName => model.findNodeById(nodeName));
+    // Add order to the path and update HTML schema
+    const schema = document.querySelector('#connections');
+    schema.innerHTML = '';
+    path.forEach((node, index) => {
+      if (index === path.length - 1) {
+        return;
+      }
+      let connectionContainer = document.createElement('div');
+      connectionContainer.classList.add('connection');
+      connectionContainer.id = `${node.name}-connection`;
+      connectionContainer.innerHTML = `
+      <span class="from">${node.name}</span> to <span class="to">${path[index + 1].name}</span>
+      `;
+     
+
+      // Create a new div for the order
+      let orderDiv = document.createElement('div');
+      orderDiv.classList.add('connection-order');
+      orderDiv.innerText = `Order: ${index + 1}`;
+
+      // Append the order div to the connection container
+      connectionContainer.appendChild(orderDiv);
+      
+      schema.appendChild(connectionContainer);
+    });
+  
+    // Print the path with order
+    console.log('Path with order:', path);
+
+
 }

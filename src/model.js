@@ -162,7 +162,8 @@ function getNodeDist(node1, node2) {
 export function findNodeByName(nodeName) {
   const node = nodes.find((node) => node.name === nodeName);
   if (!node) {
-    console.error(`Node ${nodeName} not found`);
+    console.error(`Node ${nodeName} not found in nodes: `);
+    console.log(nodes);
   }
   return node;
 }
