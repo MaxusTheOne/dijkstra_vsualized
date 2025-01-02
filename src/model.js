@@ -2,17 +2,24 @@ import * as controller from './controller';
 import PrioQueue from './types/prioQueue';
 import * as view from './view';
 
+//this is our array which gets the processed nodes from the json data
 export let nodes = []; // Main nodes
 //NOT IN USE, DELETE THIS
 let startNode;
-let visitedNodes = []; // Visited nodes
-let priorityQueue = new PrioQueue(); // Priority queue for Dijkstra
+//global array to check if a given node has been visited
+let visitedNodes = [];
+//find meaningful comment in the prioQueue class 
+let priorityQueue = new PrioQueue();
+//dictionary object containing a key which is the nodeId and a value which is the distance from the starting node
 let distances = {};
+//dictionary object containing a key which is the nodeId and a value which the neighboring node or what?
 let previousNodes = {};
 
-export async function init() {
-  await initNodes();
-}
+//NOT IN USE, DELETE THIS
+// export async function init() {
+//   //initNodes gets called in dijkstra function as well, figure explanation out?
+//   await initNodes();
+// }
 
 //NOT IN USE, DELETE THIS
 // Node structure = {id: "Denmark", x: 0, y: 0, connections: ["Sweden", "Germany"]}
@@ -49,7 +56,7 @@ export async function init() {
 //   nodes = fetchedNodes;
 // }
 
-export async function initNodes() {
+export async function init() {
   try {
     const response = await fetch('./src/nodes.json');
     //destructuring of the variables from the json
@@ -89,35 +96,56 @@ export async function initNodes() {
   }
 }
 
+//NOT IN USE, DELETE THIS
+// export async function dijkstra(startCountry, endCountry) {
+//   // await initNodes();
+//   return dijkstraAlgo(startCountry, endCountry);
+// }
 
-export async function dijkstra(start, end) {
-  await initNodes();
-  return dijkstraAlgo(start, end);
-}
+//called by start dijkstra in the controller, gets the start and end parameters from there
+//we have changed the parameter names to be more meaningful
 
-export async function dijkstraAlgo(start, end) {
-  // Convert start and end to node objects
-  start = findNodeByName(start);
-  end = findNodeByName(end);
+export async function dijkstraAlgo(startCountry, endCountry) {
+  //Since we get the names of the countrys from the input fields,
+  //we need to find the corresponding nodes, hence the functions below
+  let startNode = findNodeByName(startCountry);
+  let endNode = findNodeByName(endCountry);
 
-  if (!start || !end) {
+  //error handling in case no node is found by that country name
+  if (!startNode || !endNode) {
     console.error('Start or end node not found');
     return [];
   }
 
+  //is only called once outside the while loop, initiates an array
+  //with object of this structure {nodeId, visited: true/false}
   initVisitedNodes();
-  distances[start.nodeId] = 0;
 
-  // Enqueue the starting node
-  priorityQueue.enqueue(start, 0);
+  //dictionary obbject distances has its first pair set to the key = nodeId
+  //of our starting node and the value = 0, which is correct for
+  //the dijkstar algo, we do this to have a starting point
+  distances[startNode.nodeId] = 0;
 
+  //Enqueue the starting node, which takes a node and its distance from start
+  //this will always be the starting node, so nothing else to sort
+  priorityQueue.enqueue(startNode, 0);
+
+  //this is the while loop that actually runs the algorithm from start to end
+  //it runs on the condition that the prioQueue is not empty
   while (!priorityQueue.isEmpty()) {
-    let current = priorityQueue.dequeue(); // Get node with the smallest distance
-    //Her highlightes den node der processeres lige nu
+    //Get node with the smallest distance, this is reassigned each iteration
+    //current is an object of this structure {node, distance/priority}
+    let current = priorityQueue.dequeue();
+
+    //Here we highlight the current node being processed
     view.highlightNode(current);
+
+    //Here we show the distance between nodes on the "edge label" between the nodes
     view.setDistancesToEdges(current.node);
-    if (current.node.nodeId === end.nodeId) {
-      return getOptimalRoute(start, end);
+
+    //
+    if (current.node.nodeId === endNode.nodeId) {
+      return getOptimalRoute(startNode, endNode);
     }
 
     // Skip if already visited
@@ -149,6 +177,7 @@ export async function dijkstraAlgo(start, end) {
   }
   return [];
 }
+
 // Calculate distances from a given node
 export function distancesFromNode(node) {
   let nodeConnections = [];
@@ -190,9 +219,10 @@ export function getOptimalRoute(start, end) {
   return path;
 }
 
-// Initialize visited nodes
+// Initializes a list of objects containing all nodeId's and true/false if it has been visited
 function initVisitedNodes() {
-  visitedNodes = [];
+  //NOT IN USE, DELETE THIS
+  // visitedNodes = [];
   for (let node of nodes) {
     visitedNodes.push({ id: node.nodeId, visited: false });
   }
@@ -203,10 +233,13 @@ function getNodeDist(node1, node2) {
   return Math.sqrt((node1.lng - node2.lng) ** 2 + (node1.lat - node2.lat) ** 2);
 }
 
-export function findNodeByName(nodeName) {
-  const node = nodes.find((node) => node.name === nodeName);
+
+//finds the corresponding node to the country name
+//error handling if find returns undefined
+export function findNodeByName(countryName) {
+  const node = nodes.find((node) => node.name === countryName);
   if (!node) {
-    console.error(`Node ${nodeName} not found in nodes: `);
+    console.error(`Node ${countryName} not found in nodes: `);
     console.log(nodes);
   }
   return node;

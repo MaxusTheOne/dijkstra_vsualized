@@ -72,6 +72,7 @@ export function initGraph() {
   graph = new Graph();
 }
 
+//this function is used in loadJson, more explanation to come
 export function addNode(lat, lng, name) {
   const nodeId = ++nodeInstances;
   let node = graph.addNode(nodeId, {
@@ -83,15 +84,14 @@ export function addNode(lat, lng, name) {
     nodeId: nodeId.toString(),
   });
 
-  // graphNodes.push(graph.getNodeAttribute(node, "id"));
   graphNodes.push(graph.getNodeAttributes(node));
   const circle = L.circle([lat, lng], {
     color: 'red',
-    radius: 30000, // Increase the radius to make the nodes bigger
+    radius: 30000,
   }).addTo(map);
 
   circle.on('click', (e) => {
-    e.originalEvent.stopPropagation(); // Prevent map click event
+    e.originalEvent.stopPropagation();
     handleNodeClick(nodeId);
   });
   circle.bindTooltip(`${name}`, {
