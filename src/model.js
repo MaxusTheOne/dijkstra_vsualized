@@ -3,6 +3,7 @@ import PrioQueue from './types/prioQueue';
 import * as view from './view';
 
 export let nodes = []; // Main nodes
+//NOT IN USE, DELETE THIS
 let startNode;
 let visitedNodes = []; // Visited nodes
 let priorityQueue = new PrioQueue(); // Priority queue for Dijkstra
@@ -13,39 +14,81 @@ export async function init() {
   await initNodes();
 }
 
+//NOT IN USE, DELETE THIS
 // Node structure = {id: "Denmark", x: 0, y: 0, connections: ["Sweden", "Germany"]}
-export async function initNodes() {
-  let fetchedNodes;
-  let fetchedConnections;
-  await fetch('./src/nodes.json')
-    .then((response) => response.json())
-    .then((data) => {
-      fetchedNodes = data.nodes;
-      fetchedConnections = data.edges;
-    });
-  fetchedNodes.forEach((node) => {
-    node.connections = [];
-    distances[node.nodeId] = Infinity;
-    previousNodes[node.nodeId] = null;
-  });
-  let connection1, connection2;
-  fetchedConnections.forEach((connection) => {
-    connection1 = fetchedNodes.find(
-      (node) => node.nodeId === connection.source
-    );
-    connection2 = fetchedNodes.find(
-      (node) => node.nodeId === connection.target
-    );
+// export async function initNodes() {
+//   let fetchedNodes;
+//   let fetchedConnections;
+//   await fetch('./src/nodes.json')
+//     .then((response) => response.json())
+//     .then((data) => {
+//       fetchedNodes = data.nodes;
+//       fetchedConnections = data.edges;
+//     });
+//   fetchedNodes.forEach((node) => {
+//     node.connections = [];
+//     distances[node.nodeId] = Infinity;
+//     previousNodes[node.nodeId] = null;
+//   });
+//   let connection1, connection2;
+//   fetchedConnections.forEach((connection) => {
+//     connection1 = fetchedNodes.find(
+//       (node) => node.nodeId === connection.source
+//     );
+//     connection2 = fetchedNodes.find(
+//       (node) => node.nodeId === connection.target
+//     );
 
-    if (connection1 && connection2) {
-      connection1.connections.push(connection2.nodeId);
-      connection2.connections.push(connection1.nodeId);
-    } else {
-      console.error('Connection not found for nodes:', connection);
-    }
-  });
-  nodes = fetchedNodes;
+//     if (connection1 && connection2) {
+//       connection1.connections.push(connection2.nodeId);
+//       connection2.connections.push(connection1.nodeId);
+//     } else {
+//       console.error('Connection not found for nodes:', connection);
+//     }
+//   });
+//   nodes = fetchedNodes;
+// }
+
+export async function initNodes() {
+  try {
+    const response = await fetch('./src/nodes.json');
+    //destructuring of the variables from the json
+    const { nodes: fetchedNodes, edges: fetchedConnections } = await response.json();
+
+    //node.connection sets a property on the node with an empty array
+    //distances[node.nodeId] sets a key = nodeId, value = Infinity, pair inside the dictionary object distances
+    //previousNodes[node.nodeId] sets a key = nodeId, value = null, pair inside the dictionary object previousNodes
+    fetchedNodes.forEach((node) => {
+      node.connections = [];
+      distances[node.nodeId] = Infinity;
+      previousNodes[node.nodeId] = null;
+    });
+
+    //we find each node based on the edges source and target, which is corresponding to a nodeId
+    //we use the .find method to look through fetchedNodes and find the corresponding node which
+    //we then set to the variables connectionSource and connectionTarget
+    //finally we push each nodes ID (target, source) to each others connections array, so that they contain a reference to 
+    //each other as a connection
+    fetchedConnections.forEach(({ source, target }) => {
+      const connectionSource = fetchedNodes.find((node) => node.nodeId === source);
+      const connectionTarget = fetchedNodes.find((node) => node.nodeId === target);
+
+      if (connectionSource && connectionTarget) {
+        connectionSource.connections.push(connectionTarget.nodeId);
+        connectionTarget.connections.push(connectionSource.nodeId);
+      } else {
+        console.error('Connection not found for nodes:', { source, target });
+      }
+    });
+
+    //finally we set the global array "nodes" to the fetchedNodes which have now been initialized with
+    //correct properties and an array of connections which reference the ID of the connection nodes
+    nodes = fetchedNodes;
+  } catch (error) {
+    console.error('Failed to initialize nodes:', error);
+  }
 }
+
 
 export async function dijkstra(start, end) {
   await initNodes();

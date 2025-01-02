@@ -7,17 +7,21 @@ import L from 'leaflet';
 import * as controller from './controller.js';
 import * as model from './model.js';
 
+//NOT IN USE, DELETE THIS
 // import { Settings } from "sigma/src/settings";
 
 export let graph;
 let graphNodes = [];
 let edges = {};
+//NOT IN USE, DELETE THIS
 let circles = [];
 let map;
 export let nodeInstances = 1;
 let selectedNodes = [];
 
+//This ensures that our map and graph and json data is all initialized
 export async function init() {
+  //NOT IN USE, DELETE THIS
   console.log('view.js loaded');
 
   initMap();

@@ -4,12 +4,14 @@ import * as view from './view.js';
 window.addEventListener('load', init);
 
 async function init() {
+  //NOT IN USE, DELETE THIS
   console.log('controller.js loaded');
 
   view.init();
   await model.init();
   console.log('model.nodes', model.nodes);
 
+  //NOT IN USE, DELETE THIS
   // Getting optimal path from Denmark to Goalland
   // model.dijkstra('Denmark', 'Goalland');
   // startDijkstra('Italy', 'Goalland');
