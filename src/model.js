@@ -72,6 +72,7 @@ export async function dijkstraAlgo(start, end) {
     let current = priorityQueue.dequeue(); // Get node with the smallest distance
     //Her highlightes den node der processeres lige nu
     view.highlightNode(current);
+    view.setDistancesToEdges(current.node);
     if (current.node.nodeId === end.nodeId) {
       return getOptimalRoute(start, end);
     }

@@ -349,5 +349,6 @@ function handleNodeSelection(e) {
   console.log('End Node:', endNode);
 
   // Start Dijkstra
+  console.log(startNode.name, endNode.name);
   controller.startDijkstra(startNode.name, endNode.name);
 }
