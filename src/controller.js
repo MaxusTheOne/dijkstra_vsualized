@@ -43,7 +43,6 @@ export async function pauseDijkstra(pauseTime) {
   return new Promise(resolve => {
     setTimeout(() => {
       resolve();
-      console.log("Paused dijkstra");
     }, pauseTime);
   });
 }

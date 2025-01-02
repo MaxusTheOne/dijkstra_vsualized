@@ -225,7 +225,7 @@ export async function colorCircle(lat, lng, name) {
   circle.remove();
 }
 
-export async function highlightEdge(nodeId1, nodeId2) {
+export async function highlightEdge(nodeId1, nodeId2, color) {
   const node1 = graph.getNodeAttributes(nodeId1);
   const node2 = graph.getNodeAttributes(nodeId2);
   const polyline = L.polyline(
@@ -234,7 +234,7 @@ export async function highlightEdge(nodeId1, nodeId2) {
       [node2.lat, node2.lng],
     ],
     {
-      color: 'red', // Optional: Set color for the polyline
+      color: `${color}`, // Optional: Set color for the polyline
       weight: 4, // Optional: Set weight for the polyline
     }
   ).addTo(map);
@@ -242,10 +242,3 @@ export async function highlightEdge(nodeId1, nodeId2) {
   polyline.remove();
 }
 
-// export function findEdgeFromNode(node) {
-//   const distances = model.distancesFromNode(node);
-
-//   for (let distance of distances) {
-//     highlightEdge(node.nodeId, distance.id);
-//   }
-// }

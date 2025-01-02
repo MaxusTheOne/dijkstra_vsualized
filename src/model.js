@@ -1,4 +1,3 @@
-import { pauseDijkstra } from './controller.js';
 import PrioQueue from './types/prioQueue';
 import * as view from './view.js';
 import * as controller from "./controller.js";
@@ -9,6 +8,9 @@ let visitedNodes = []; // Visited nodes
 let priorityQueue = new PrioQueue(); // Priority queue for Dijkstra
 let distances = {};
 let previousNodes = {};
+let prevNode;
+
+
 export async function init() {
   let path = await dijkstra("Italy", "Goalland");
   console.log("Path:", path);
@@ -71,6 +73,7 @@ export async function dijkstraAlgo(start, end) {
 
   while (!priorityQueue.isEmpty()) {
     let current = priorityQueue.dequeue(); // Get node with the smallest distance
+    prevNode = current;
     //Her highlightes den node der processeres lige nu
     view.highlightNode(current);
     if (current.node.nodeId === end.nodeId) {
@@ -101,6 +104,8 @@ export async function dijkstraAlgo(start, end) {
         priorityQueue.enqueue(neighbor, newDist);
       }
     }
+    view.highlightEdge(startNode.nodeId,);
+
     await controller.pauseDijkstra(5000);
   }
   return [];
@@ -115,9 +120,10 @@ export function distancesFromNode(node) {
   }
 
   //Her highlighter vi edges fra den current node til dens connections
-  for (let distance of nodeConnections) {
-    view.highlightEdge(node.nodeId, distance.id);
-  }
+  // for (let distance of nodeConnections) {
+  //   view.highlightEdge(node.nodeId, distance.id, "red");
+  // }
+
   return nodeConnections;
 }
 
