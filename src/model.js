@@ -102,7 +102,7 @@ export async function dijkstraAlgo(start, end) {
         view.setSchemaToNodeList(previousNodes);
       }
     }
-    await controller.pauseDijkstra(500);
+    await controller.pauseDijkstra();
   }
   return [];
 }

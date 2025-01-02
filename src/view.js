@@ -228,7 +228,7 @@ export async function colorCircle(lat, lng, name) {
     direction: 'top',
   });
 
-  await controller.pauseDijkstra(500);
+  await controller.pauseDijkstra();
 
   circle.remove();
 }
@@ -246,7 +246,7 @@ export async function highlightEdge(nodeId1, nodeId2) {
       weight: 4, // Optional: Set weight for the polyline
     }
   ).addTo(map);
-  await controller.pauseDijkstra(500);
+  await controller.pauseDijkstra();
   polyline.remove();
 }
 export async function highlightEdgeForPath(nodeId1, nodeId2) {
@@ -328,7 +328,7 @@ export async function highlightPath(path) {
     }
   }
   for (let i = path.length - 1; i > 0; i--) {
-    await controller.pauseDijkstra(500);
+    await controller.pauseDijkstra();
     await highlightEdgeForPath(path[i], path[i - 1]);
   }
 }

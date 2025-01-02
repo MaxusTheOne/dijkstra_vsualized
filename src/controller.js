@@ -18,11 +18,11 @@ export function addNode(x, y) {
   view.addNode(x, y);
 }
 
-export async function pauseDijkstra(pauseTime) {
+export async function pauseDijkstra() {
+  const pauseTime = document.querySelector("#pause_time").value;
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve();
-      console.log('Paused dijkstra');
     }, pauseTime);
   });
 }
