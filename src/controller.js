@@ -4,21 +4,11 @@ import * as view from './view.js';
 window.addEventListener('load', init);
 
 async function init() {
-  //NOT IN USE, DELETE THIS
-  console.log('controller.js loaded');
-
   view.init();
 
   //we await this because all of our data is constructed in this function and that is
   //a little bit important for the rest of our application
   await model.init();
-  //NOT IN USE, DELETE THIS
-  console.log('model.nodes', model.nodes);
-
-  //NOT IN USE, DELETE THIS
-  // Getting optimal path from Denmark to Goalland
-  // model.dijkstra('Denmark', 'Goalland');
-  // startDijkstra('Italy', 'Goalland');
 }
 
 export function addNode(x, y) {
@@ -44,12 +34,12 @@ export async function pauseDijkstra() {
 export async function startDijkstra(startCountry, endCountry) {
   let optimalPath = await model.dijkstraAlgo(startCountry, endCountry);
   //We keep this to ensure that the visual path matches the model path
-  console.log('Path:', optimalPath);
+  console.log('Optimal path:', optimalPath);
 
   //used to highlight the optimal path, once it has been found 
   view.highlightPath(optimalPath);
 
   //this will be the array containing the optimal path nodes in order, 
-  // from the dijkstra algo function in the model
+  //from the dijkstra algo function in the model
   return optimalPath;
 }

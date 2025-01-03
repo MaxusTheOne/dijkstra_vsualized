@@ -4,57 +4,19 @@ import * as view from './view';
 
 //this is our array which gets the processed nodes from the json data
 export let nodes = []; // Main nodes
-//NOT IN USE, DELETE THIS
-let startNode;
+
 //global array to check if a given node has been visited
 let visitedNodes = [];
+
 //find meaningful comment in the prioQueue class 
 let priorityQueue = new PrioQueue();
+
 //dictionary object containing a key which is the nodeId and a value which is the distance from the starting node
 let distances = {};
+
+//could be called "shortestConnectionToStartDictionary"
 //dictionary object containing a key which is the nodeId and a value which the neighboring node or what?
 let previousNodes = {};
-
-//NOT IN USE, DELETE THIS
-// export async function init() {
-//   //initNodes gets called in dijkstra function as well, figure explanation out?
-//   await initNodes();
-// }
-
-//NOT IN USE, DELETE THIS
-// Node structure = {id: "Denmark", x: 0, y: 0, connections: ["Sweden", "Germany"]}
-// export async function initNodes() {
-//   let fetchedNodes;
-//   let fetchedConnections;
-//   await fetch('./src/nodes.json')
-//     .then((response) => response.json())
-//     .then((data) => {
-//       fetchedNodes = data.nodes;
-//       fetchedConnections = data.edges;
-//     });
-//   fetchedNodes.forEach((node) => {
-//     node.connections = [];
-//     distances[node.nodeId] = Infinity;
-//     previousNodes[node.nodeId] = null;
-//   });
-//   let connection1, connection2;
-//   fetchedConnections.forEach((connection) => {
-//     connection1 = fetchedNodes.find(
-//       (node) => node.nodeId === connection.source
-//     );
-//     connection2 = fetchedNodes.find(
-//       (node) => node.nodeId === connection.target
-//     );
-
-//     if (connection1 && connection2) {
-//       connection1.connections.push(connection2.nodeId);
-//       connection2.connections.push(connection1.nodeId);
-//     } else {
-//       console.error('Connection not found for nodes:', connection);
-//     }
-//   });
-//   nodes = fetchedNodes;
-// }
 
 export async function init() {
   try {
@@ -95,15 +57,6 @@ export async function init() {
     console.error('Failed to initialize nodes:', error);
   }
 }
-
-//NOT IN USE, DELETE THIS
-// export async function dijkstra(startCountry, endCountry) {
-//   // await initNodes();
-//   return dijkstraAlgo(startCountry, endCountry);
-// }
-
-//called by start dijkstra in the controller, gets the start and end parameters from there
-//we have changed the parameter names to be more meaningful
 
 export async function dijkstraAlgo(startCountry, endCountry) {
   //Since we get the names of the countrys from the input fields,
@@ -151,7 +104,7 @@ export async function dijkstraAlgo(startCountry, endCountry) {
       return getOptimalPath(startNode, endNode);
     }
 
-    //this conditional checks if the current nodes, checked by the nodeId,
+    //this conditional checks if the current node, checked by the nodeId,
     //has its visited property, in the visitedNodes array, set to true
     //if so, it skips the rest of this iteration
     //we use a separate array for this visitedNodes to have separation of concerns
@@ -163,44 +116,90 @@ export async function dijkstraAlgo(startCountry, endCountry) {
     //else it sets the visited property to true (it would have been false to even get here)
     findNodeByIdInVisited(current.node.nodeId).visited = true;
 
-    //CONTINUE REFACTORING FROM HERE
+    //Gets connection node objects in an array with structure {id: connectedNode.nodeId, dist }
+    //from the current node
     let connections = distancesFromNode(current.node);
+
+    //for each connection node object we start by finding the neighbor
+    //which is any node connected directly to the current node
     for (let connection of connections) {
+      //finds the main node from the nodeId, instead of only having the connection object
       let neighbor = findNodeById(connection.id);
-      if (!neighbor) {
+
+      //all nodes should have connections, but this is just good practice
+      //for debugging purposes, skips the rest of this iteration if no neighbors
+      if (!connection) {
         console.error(`Neighbor node ${connection.id} not found`);
         continue;
       }
+
+      //we use the distances dictionary object, by acessing the key, which we
+      //get from our current nodes, nodeId. By accessing the key, we can add
+      //the value, which is set to connection.dist (change this to distanceFromParent later)
+      //our current nodes distance to its connection/neighbor
       let newDist = distances[current.node.nodeId] + connection.dist;
 
-      if (newDist < distances[neighbor.nodeId]) {
-        distances[neighbor.nodeId] = newDist;
-        previousNodes[neighbor.nodeId] = current.node.nodeId;
+      //the first time we check a connections distance = "newDistance" (from our current node)
+      //it will always be smaller and therefore fulfill the conditional, since it is set to Infinity (Dijkstra says this)
+      if (newDist < distances[connection.id]) {
+
+        //we reassign the value of the key, to the newDist, since we
+        //now it is smaller (Dijkstra says this)
+        distances[connection.id] = newDist;
+
+        //this is used for optimal path, if this is the shortest distance from our current node
+        //then we set the value of our connection node id, to be the current nodes id, a reference
+        //structure of previousNodes key: connectionNodeId, value: currentNodeId
+        previousNodes[connection.id] = current.node.nodeId;
+
+        //neighbor is a main node, newDist is the shortest distance (and priority in the prioQueue)
+        //all nodes get enqueued the first time they are processed, bc they start with distance Infinity
         priorityQueue.enqueue(neighbor, newDist);
+
+        //this is used to add html elements to the schema, if they exist in the
+        //previousNodes dictionary object as values
         view.setSchemaToNodeList(previousNodes);
       }
     }
+    //pauses for visual purposes
     await controller.pauseDijkstra();
   }
+  //for the optimal path variable, if we get an empty array this is for debugging
+  //see "startDijkstra" in controller.js
   return [];
 }
 
-// Calculate distances from a given node
+//This function takes a node and from that nodes "connections" property it calculates
+//the distances from that node to its connections
 export function distancesFromNode(node) {
   let nodeConnections = [];
   for (let connection of node.connections) {
+    //finds node by nodeId, which is needed bc we only have
+    //the reference nodeId
     let connectedNode = findNodeById(connection);
-    let dist = getNodeDist(node, connectedNode);
-    nodeConnections.push({ id: connectedNode.nodeId, dist });
+    //we use the connectedNode and the paramater node to figure out the distance
+    //between them, using lang lng
+    let distanceFromParent = getNodeDist(node, connectedNode);
+    //we push an object containing, the id of the current connected node that we are processing
+    //to the local array nodeConnections, which we later can use to find that 
+    //node elsewhere, we also set a prop "distanceFromParent"
+    nodeConnections.push({ id: connectedNode.nodeId, dist: distanceFromParent });
   }
 
-  //Her highlighter vi edges fra den current node til dens connections
-  for (let distance of nodeConnections) {
-    view.highlightEdge(node.nodeId, distance.id);
+  //We highlight the edges that are currently being processed
+  //we call this after the first loop, because we need the fully populated
+  //nodeConnections array to be able to know which edges to highlight
+  //connection.id could be connection.connectionId (corresponds to naming in node.nodeId as well)
+  for (let connection of nodeConnections) {
+    view.highlightEdge(node.nodeId, connection.id);
   }
+
+  //We return the node connections as an array of objects with this structure
+  // type {id: connectedNode.nodeId, dist }
   return nodeConnections;
 }
 
+//CONTINUE REFACTORING FROM HERE
 export function getOptimalPath(start, end) {
   let path = [];
   let currentNode = end.nodeId;
@@ -235,7 +234,8 @@ function initVisitedNodes() {
   }
 }
 
-// Utility functions
+//Pythagoras theorem to calculate distance between 2 points, by using each nodes
+//lat and lng properties
 function getNodeDist(node1, node2) {
   return Math.sqrt((node1.lng - node2.lng) ** 2 + (node1.lat - node2.lat) ** 2);
 }
@@ -252,6 +252,8 @@ export function findNodeByName(countryName) {
   return node;
 }
 
+//takes a nodeId from a node and looks through the global "nodes"
+//array and returns the node which matches the nodeId
 export function findNodeById(nodeId) {
   const node = nodes.find((node) => node.nodeId === nodeId);
   if (!node) {
@@ -260,25 +262,9 @@ export function findNodeById(nodeId) {
   return node;
 }
 
+//to prevent looking at nodes that have already been visited (prevent backtracking)
 function findNodeByIdInVisited(nodeId) {
   return visitedNodes.find((node) => node.id === nodeId);
 }
 
-function handleNodeSelection(e) {
-  e.preventDefault();
 
-  // find startnode by name in nodes
-  const inputStart = document.querySelector('#input_start').value;
-  const startNode = model.findNodeByName(inputStart);
-
-  // find endnode by name in nodes
-  const inputEnd = document.querySelector('#input_goal').value;
-  const endNode = model.findNodeByName(inputEnd);
-
-  // Print the found nodes
-  console.log('Start Node:', startNode);
-  console.log('End Node:', endNode);
-
-  // Start Dijkstra
-  controller.startDijkstra(startNode.name, endNode.name);
-}

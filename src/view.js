@@ -20,6 +20,7 @@ export let nodeInstances = 1;
 let selectedNodes = [];
 
 //This ensures that our map and graph and json data is all initialized
+//this adds the eventlistener to start the algo
 export async function init() {
   //NOT IN USE, DELETE THIS
   console.log('view.js loaded');
@@ -28,6 +29,7 @@ export async function init() {
   initGraph();
   await loadJson();
 
+  //this click starts the algo
   document
     .querySelector('#input_button')
     .addEventListener('click', handleNodeSelection);
@@ -253,6 +255,7 @@ export async function highlightEdge(nodeId1, nodeId2) {
   await controller.pauseDijkstra();
   polyline.remove();
 }
+
 export async function highlightEdgeForPath(nodeId1, nodeId2) {
   const node1 = graph.getNodeAttributes(nodeId1);
   const node2 = graph.getNodeAttributes(nodeId2);
@@ -268,53 +271,49 @@ export async function highlightEdgeForPath(nodeId1, nodeId2) {
   ).addTo(map);
 }
 
-// export function findEdgeFromNode(node) {
-//   const distances = model.distancesFromNode(node);
-//   for (let distance of distances) {
-//     highlightEdge(node.nodeId, distance.id);
-//   }
-// }
-function addConnectionToSchema(node1, node2) {
+
+//add one line of HTML with the names of the 2 connected nodes
+function addConnectionToSchema(node1Name, node2Name) {
   let schema = document.querySelector('#connections');
 
   let connectionContainer = document.createElement('div');
   connectionContainer.classList.add('connection');
-  connectionContainer.id = `${node1}-connection`;
+  connectionContainer.id = `${node1Name}-connection`;
   connectionContainer.innerHTML = `
-  <span class="from">${node2}</span> to <span class="to">${node1}</span>
+  <span class="from">${node2Name}</span> to <span class="to">${node1Name}</span>
   `;
 
   schema.appendChild(connectionContainer);
 }
 
-export function addPathToSchema(path) {
+//nodeList is the global previousNodes dictionary object
+//called every iteration of the connections loop, for each connection
+//changes the html schema to match the previous nodes dictionary
+export function setSchemaToNodeList(towardsStartDictionary) {
+  //find schema html element
   let schema = document.querySelector('#connections');
-
-  let connectionContainer = document.createElement('div');
-  connectionContainer.classList.add('connection');
-
-  for (let i = 0; i < path.length - 1; i++) {
-    let node1 = model.findNodeById(path[i]);
-    let node2 = model.findNodeById(path[i + 1]);
-    if (node1 && node2) {
-      addConnectionToSchema(node1.name, node2.name);
-    }
-  }
-
-  schema.appendChild(connectionContainer);
-}
-
-export function setSchemaToNodeList(nodeList) {
-  let schema = document.querySelector('#connections');
+  //reset innerHTML
   schema.innerHTML = '';
 
-  for (let nodeId in nodeList) {
-    let node = model.findNodeById(nodeId);
-    if (!nodeList[nodeId]) {
+  //look at each element in the object, use for in for this reason
+  //since not an array, no "order" in a object, not iterable
+  for (let nodeId in towardsStartDictionary) {
+
+    //default is null if they are not changed, we skip null values in the loop
+    if (!towardsStartDictionary[nodeId]) {
       continue;
     }
-    let connectedNode = model.findNodeById(nodeList[nodeId]);
-    addConnectionToSchema(node.name, connectedNode.name);
+
+    //find main node by the key: nodeId from the towardsStartDictionary
+    let mainNode = model.findNodeById(nodeId);
+
+    //we find the connected node with shortest distance to start
+    //by accessing the value of the towardsStartDictionary, which will be that nodes ID
+    //to be able to get back towards start, we need to go to the value attached to the key 
+    let towardsStartNode = model.findNodeById(towardsStartDictionary[nodeId]);
+
+    //
+    addConnectionToSchema(mainNode.name, towardsStartNode.name);
   }
 }
 
@@ -337,6 +336,7 @@ export async function highlightPath(path) {
   }
 }
 
+//starts the program/algo
 async function handleNodeSelection(e) {
   e.preventDefault();
 
