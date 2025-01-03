@@ -199,30 +199,53 @@ export function distancesFromNode(node) {
   return nodeConnections;
 }
 
-//CONTINUE REFACTORING FROM HERE
-export function getOptimalPath(start, end) {
-  let path = [];
-  let currentNode = end.nodeId;
+//called when endnode.id is equal to the currentNode.id in dijkstraalgo, and therefore returns the array
+//from this function
+export function getOptimalPath(startNode, endNode) {
+  console.log("endNode: ", endNode);
+  //array of node ID's
+  let optimalPath = [];
 
+  //initialized to endNodes nodeId because
+  let currentNodeId = endNode.nodeId;
+
+  //this is for debugging purposes
   let safetyCounter = 0; // Safety counter to prevent infinite loop
   const maxIterations = 1000; // Adjust this value as needed
 
-  while (currentNode !== null && currentNode !== start.nodeId) {
+  //the first iteration current node is the end node
+  //breaks when we hit the start node, works "backwards"
+  while (currentNodeId !== null && currentNodeId !== startNode.nodeId) {
+
+    //this is for debugging purposes
+    //prevents infinite loops, if 2 nodes should end up pointing to each other
+    //because in the previousNodes dict obj, both key: nodeId and value: nodeId
+    //for example key: 5 value: 4 AND key: 4 value: 5 (would be infinite loop)
     if (safetyCounter > maxIterations) {
       console.error('Infinite loop detected in getOptimalRoute');
       break;
     }
-    path.unshift(currentNode);
-    currentNode = previousNodes[currentNode];
+
+    //puts the element into the first spot in the path array
+    //could have been push, but it made sense at the time, so just leave it
+    //since we add all elements in this same manner
+    optimalPath.unshift(currentNodeId);
+
+    //we reassign the variable for currentNodeId to the value of the corresponding key
+    //in the previousNodes dictionary object
+    currentNodeId = previousNodes[currentNodeId];
+
     safetyCounter++;
   }
 
-  // Add the start node to the path
-  if (currentNode === start.nodeId) {
-    path.unshift(start.nodeId);
+  // Add the start node to the path, because we use that as a condition
+  //to break the while loop
+  //could have used a "do while loop" to include this instead of having it separately
+  if (currentNodeId === startNode.nodeId) {
+    optimalPath.unshift(startNode.nodeId);
   }
 
-  return path;
+  return optimalPath;
 }
 
 // Initializes a list of objects containing all nodeId's and true/false if it has been visited
