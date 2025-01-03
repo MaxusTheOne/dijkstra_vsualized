@@ -203,7 +203,6 @@ export function distancesFromNode(node) {
 //called when endnode.id is equal to the currentNode.id in dijkstraalgo, and therefore returns the array
 //from this function
 export function getOptimalPath(startNode, endNode) {
-  console.log("endNode: ", endNode);
   //array of node ID's
   let optimalPath = [];
 
@@ -268,7 +267,7 @@ function getNodeDist(node1, node2) {
 //finds the corresponding node to the country name
 //error handling if find returns undefined
 export function findNodeByName(countryName) {
-  const node = nodes.find((node) => node.name === countryName);
+  const node = nodes.find((node) => String(node.name).toLocaleUpperCase() === String(countryName).toLocaleUpperCase());
   if (!node) {
     console.error(`Node ${countryName} not found in nodes: `);
     console.log(nodes);

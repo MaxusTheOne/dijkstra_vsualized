@@ -21,7 +21,7 @@ export async function init() {
   //this click starts the algo
   document
     .querySelector('#input_button')
-    .addEventListener('click', handleNodeSelection);
+    .addEventListener('click', handleSubmitForm);
 }
 
 //initializes our map from Leaflet
@@ -346,33 +346,45 @@ export async function highlightPath(path) {
   }
 }
 
-//starts the program/algo
-async function handleNodeSelection(e) {
-  e.preventDefault();
+//starts the program/algo, called on click submit
+async function handleSubmitForm() {
+  //Not really a submit, since it is a click event, but for naming purposes
 
-  // find startnode by name in nodes
+  //find startnode by name in nodes
   const inputStart = document.querySelector('#input_start').value;
   const startNode = model.findNodeByName(inputStart);
 
-  // find endnode by name in nodes
+  //find endnode by name in nodes
   const inputEnd = document.querySelector('#input_goal').value;
   const endNode = model.findNodeByName(inputEnd);
 
-  // Print the found nodes
+  //Print the start and end nodes, found from the input
   console.log('Start Node:', startNode);
   console.log('End Node:', endNode);
 
-  // Start Dijkstra
+  //Starts Dijkstra
   let path = await controller.startDijkstra(startNode.name, endNode.name);
 
+  //change from a list of id's: ['13', '10', '2', '3', '4', '5', '7']
+  //to a list of main nodes
   path = path.map(nodeName => model.findNodeById(nodeName));
-  // Add order to the path and update HTML schema
+
+  addOrderToSchema(path);
+}
+
+//adds a path with order to schema
+function addOrderToSchema(path) {
   const schema = document.querySelector('#connections');
+
   schema.innerHTML = '';
+
   path.forEach((node, index) => {
+
+    //this is to break the forEach before we go out of index
     if (index === path.length - 1) {
       return;
     }
+
     let connectionContainer = document.createElement('div');
     connectionContainer.classList.add('connection');
     connectionContainer.id = `${node.name}-connection`;
@@ -380,20 +392,12 @@ async function handleNodeSelection(e) {
       <span class="from">${node.name}</span> to <span class="to">${path[index + 1].name}</span>
       `;
 
-
-    // Create a new div for the order
     let orderDiv = document.createElement('div');
     orderDiv.classList.add('connection-order');
     orderDiv.innerText = `Order: ${index + 1}`;
 
-    // Append the order div to the connection container
     connectionContainer.appendChild(orderDiv);
 
     schema.appendChild(connectionContainer);
   });
-
-  // Print the path with order
-  console.log('Path with order:', path);
-
-
 }

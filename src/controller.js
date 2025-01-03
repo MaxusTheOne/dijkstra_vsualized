@@ -11,10 +11,6 @@ async function init() {
   await model.init();
 }
 
-export function addNode(x, y) {
-  view.addNode(x, y);
-}
-
 //we use this for pausing operations in the algo for visual purposes, to show
 //each step of the algo in a more meaningful way
 //we create a new promise that takes a resolve callback function which we call inside the 
