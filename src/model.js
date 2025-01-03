@@ -143,20 +143,27 @@ export async function dijkstraAlgo(startCountry, endCountry) {
     //Here we show the distance between nodes on the "edge label" between the nodes
     view.setDistancesToEdges(current.node);
 
-    //
+    //if the nodeId of the current is the same as the one for the endNode, 
+    // which we get outside the while loop, then we call the getOptimalPath
+    //function which returns an array of nodeId's in order, with the starting node
+    //first and the end node last
     if (current.node.nodeId === endNode.nodeId) {
-      return getOptimalRoute(startNode, endNode);
+      return getOptimalPath(startNode, endNode);
     }
 
-    // Skip if already visited
+    //this conditional checks if the current nodes, checked by the nodeId,
+    //has its visited property, in the visitedNodes array, set to true
+    //if so, it skips the rest of this iteration
+    //we use a separate array for this visitedNodes to have separation of concerns
+    //with the node objects themselves and the visited property which is used by dijkstra algo
     if (findNodeByIdInVisited(current.node.nodeId).visited) {
       continue;
     }
 
-    // Mark as visited
+    //else it sets the visited property to true (it would have been false to even get here)
     findNodeByIdInVisited(current.node.nodeId).visited = true;
 
-    // Process connections
+    //CONTINUE REFACTORING FROM HERE
     let connections = distancesFromNode(current.node);
     for (let connection of connections) {
       let neighbor = findNodeById(connection.id);
@@ -194,7 +201,7 @@ export function distancesFromNode(node) {
   return nodeConnections;
 }
 
-export function getOptimalRoute(start, end) {
+export function getOptimalPath(start, end) {
   let path = [];
   let currentNode = end.nodeId;
 
@@ -256,6 +263,7 @@ export function findNodeById(nodeId) {
 function findNodeByIdInVisited(nodeId) {
   return visitedNodes.find((node) => node.id === nodeId);
 }
+
 function handleNodeSelection(e) {
   e.preventDefault();
 
