@@ -158,9 +158,10 @@ export async function dijkstraAlgo(startCountry, endCountry) {
 
         //this is used to add html elements to the schema, if they exist in the
         //previousNodes dictionary object as values
-        view.setSchemaToNodeList(previousNodes);
+        // view.setSchemaToNodeList(previousNodes);
       }
     }
+    view.setSchemaToNodeList(previousNodes);
     //pauses for visual purposes
     await controller.pauseDijkstra();
   }

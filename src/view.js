@@ -204,25 +204,6 @@ export function setDistancesToEdges(node) {
   }
 }
 
-export function addNodeWithConnection(node, targetNodeId) {
-  graph.addNode(++nodeInstances, {
-    ...node,
-    label: `Node ${nodeInstances}`,
-  });
-
-  const targetNode = graph.getNodeAttributes(targetNodeId);
-  L.polyline(
-    [
-      [node.lat, node.lng],
-      [targetNode.lat, targetNode.lng],
-    ],
-    {
-      color: 'purple',
-      weight: 5,
-    }
-  ).addTo(map);
-}
-
 //loads json data and then converts to visual nodes on the map
 export async function loadJson() {
   try {
@@ -246,13 +227,15 @@ export async function loadJson() {
   }
 }
 
-
+//highlights the current node being processed on the map,
+//calls the function that changes the label and circle color/size
 export async function highlightNode(currentNodeObj) {
   const currentNodeId = currentNodeObj.node.nodeId;
   const { lat, lng, name } = graph.getNodeAttributes(currentNodeId);
   colorCircle(lat, lng, name);
 }
 
+//logic for highlighting color and size of circle
 export async function colorCircle(lat, lng, name) {
   const circle = L.circle(
     { lat, lng },
@@ -271,6 +254,8 @@ export async function colorCircle(lat, lng, name) {
   circle.remove();
 }
 
+//adds a red edge between 2 nodes, delays, removes it again
+//this is done to show dijsktra algo calculating distances to connections
 export async function highlightEdge(nodeId1, nodeId2) {
   const node1 = graph.getNodeAttributes(nodeId1);
   const node2 = graph.getNodeAttributes(nodeId2);
@@ -288,17 +273,20 @@ export async function highlightEdge(nodeId1, nodeId2) {
   polyline.remove();
 }
 
+//adds a green edge between 2 nodes, to show the optimalpath
+//if we wanted better reset, we should remove again, once the
+//algo runs again
 export async function highlightEdgeForPath(nodeId1, nodeId2) {
   const node1 = graph.getNodeAttributes(nodeId1);
   const node2 = graph.getNodeAttributes(nodeId2);
-  const polyline = L.polyline(
+  L.polyline(
     [
       [node1.lat, node1.lng],
       [node2.lat, node2.lng],
     ],
     {
-      color: 'green', // Optional: Set color for the polyline
-      weight: 4, // Optional: Set weight for the polyline
+      color: 'green',
+      weight: 4,
     }
   ).addTo(map);
 }
@@ -329,39 +317,29 @@ export function setSchemaToNodeList(towardsStartDictionary) {
 
   //look at each element in the object, use for in for this reason
   //since not an array, no "order" in a object, not iterable
-  for (let nodeId in towardsStartDictionary) {
-
+  for (let keyValue in towardsStartDictionary) {
     //default is null if they are not changed, we skip null values in the loop
-    if (!towardsStartDictionary[nodeId]) {
+    if (!towardsStartDictionary[keyValue]) {
       continue;
     }
 
     //find main node by the key: nodeId from the towardsStartDictionary
-    let mainNode = model.findNodeById(nodeId);
+    let mainNode = model.findNodeById(keyValue);
 
     //we find the connected node with shortest distance to start
     //by accessing the value of the towardsStartDictionary, which will be that nodes ID
     //to be able to get back towards start, we need to go to the value attached to the key 
-    let towardsStartNode = model.findNodeById(towardsStartDictionary[nodeId]);
+    let towardsStartNode = model.findNodeById(towardsStartDictionary[keyValue]);
 
-    //
+    //adds an HTML element with the names of the nodes in this step of the optimal path
     addConnectionToSchema(mainNode.name, towardsStartNode.name);
   }
 }
 
+//this gets called, from the controller, after dijkstra has run in the model
+//with the return array from the dijkstra algo
+//EX: of given path SPAIN -> GOALLAND ['13', '10', '2', '3', '4', '5', '7']
 export async function highlightPath(path) {
-  let schema = document.querySelector('#connections');
-  let connections = schema.querySelectorAll('.connection');
-  let countryNames = path.map((nodeId) => model.findNodeById(nodeId).name);
-  for (let connection of connections) {
-    connection.classList.remove('highlight');
-    if (
-      countryNames.includes(connection.querySelector('.from').innerText) &&
-      countryNames.includes(connection.querySelector('.to').innerText)
-    ) {
-      connection.classList.add('highlight');
-    }
-  }
   for (let i = path.length - 1; i > 0; i--) {
     await controller.pauseDijkstra();
     await highlightEdgeForPath(path[i], path[i - 1]);
