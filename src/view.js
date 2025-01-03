@@ -1,20 +1,12 @@
 import 'leaflet/dist/leaflet.css';
-
 import chroma from 'chroma-js';
 import Graph from 'graphology';
 import L from 'leaflet';
-
 import * as controller from './controller.js';
 import * as model from './model.js';
-
-//NOT IN USE, DELETE THIS
-// import { Settings } from "sigma/src/settings";
-
 export let graph;
-let graphNodes = [];
+//dictionary of edges ids - key, value pairs
 let edges = {};
-//NOT IN USE, DELETE THIS
-let circles = [];
 let map;
 export let nodeInstances = 1;
 let selectedNodes = [];
@@ -22,9 +14,6 @@ let selectedNodes = [];
 //This ensures that our map and graph and json data is all initialized
 //this adds the eventlistener to start the algo
 export async function init() {
-  //NOT IN USE, DELETE THIS
-  console.log('view.js loaded');
-
   initMap();
   initGraph();
   await loadJson();
@@ -35,7 +24,9 @@ export async function init() {
     .addEventListener('click', handleNodeSelection);
 }
 
+//initializes our map from Leaflet
 export function initMap() {
+  //sets the current viewed part of the map to europe
   map = L.map('map_container').setView([55, 10], 4);
 
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -43,41 +34,47 @@ export function initMap() {
       '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
   }).addTo(map);
 
-  map.on('click', onMapClick);
+  //NOT CURRENTLY IN USE
+  // map.on('click', onMapClick);
 }
 
-function onMapClick(e) {
-  const { lat, lng } = e.latlng;
-  const radius = 30000; // Radius of the nodes in meters[55, 10], 4
-  let nearestNode;
+//NOT CURRENTLY IN USE
+// function onMapClick(e) {
+//   const { lat, lng } = e.latlng;
+//   const radius = 30000; // Radius of the nodes in meters[55, 10], 4
+//   let nearestNode;
 
-  let isNearNode = false;
-  graph.forEachNode((nodeId, attributes) => {
-    const distance = map.distance([lat, lng], [attributes.lat, attributes.lng]);
-    if (distance < radius) {
-      isNearNode = true;
-    }
-    if (nearestNode === undefined || distance < nearestNode.distance) {
-      nearestNode = { nodeId, distance };
-    }
-  });
-  console.log('nearestNode', nearestNode);
-  if (!isNearNode) {
-    console.log('click at:', lat, lng);
-    addNode(lat, lng);
-  } else {
-    console.log('');
-  }
-}
+//   let isNearNode = false;
+//   graph.forEachNode((nodeId, attributes) => {
+//     const distance = map.distance([lat, lng], [attributes.lat, attributes.lng]);
+//     if (distance < radius) {
+//       isNearNode = true;
+//     }
+//     if (nearestNode === undefined || distance < nearestNode.distance) {
+//       nearestNode = { nodeId, distance };
+//     }
+//   });
+//   console.log('nearestNode', nearestNode);
+//   if (!isNearNode) {
+//     console.log('click at:', lat, lng);
+//     addNode(lat, lng);
+//   } else {
+//     console.log('');
+//   }
+// }
 
+
+
+//initializes our graph from Graphology
 export function initGraph() {
   graph = new Graph();
 }
 
-//this function is used in loadJson, more explanation to come
+//adds a node as a visual circle on the map
 export function addNode(lat, lng, name) {
   const nodeId = ++nodeInstances;
-  let node = graph.addNode(nodeId, {
+
+  graph.addNode(nodeId, {
     lat,
     lng,
     size: 100,
@@ -86,16 +83,15 @@ export function addNode(lat, lng, name) {
     nodeId: nodeId.toString(),
   });
 
-  graphNodes.push(graph.getNodeAttributes(node));
+  //creates circle and adds the attributes
   const circle = L.circle([lat, lng], {
     color: 'red',
     radius: 30000,
   }).addTo(map);
 
-  circle.on('click', (e) => {
-    e.originalEvent.stopPropagation();
-    handleNodeClick(nodeId);
-  });
+
+
+  //gives the name label to the circle on the map
   circle.bindTooltip(`${name}`, {
     permanent: true,
     direction: 'center',
@@ -104,7 +100,10 @@ export function addNode(lat, lng, name) {
   });
 }
 
-function handleNodeClick(nodeId) {
+//We used this initially in the development, to figure out
+//which nodes where connected on the map, to add to our json
+//it is not needed anymore, but it was critical in development
+function handleNodeClickForEdges(nodeId) {
   selectedNodes.push(nodeId);
   if (selectedNodes.length === 2) {
     const [node1, node2] = selectedNodes;
@@ -115,11 +114,55 @@ function handleNodeClick(nodeId) {
   }
 }
 
+//adds visual edges between 2 given nodes, called in loadJson
 function addEdge(node1Id, node2Id) {
   const node1 = graph.getNodeAttributes(node1Id);
   const node2 = graph.getNodeAttributes(node2Id);
 
+  //generates an edgekey string based on nodeId's
   const edgeKey = `${node1Id}-${node2Id}`;
+
+  //this is the actual visual representation of the edge
+  //based on the latitude and longitude props from each node
+  const polyline = L.polyline(
+    [
+      [node1.lat, node1.lng],
+      [node2.lat, node2.lng],
+    ],
+    {
+      color: 'purple',
+      weight: 4,
+    }
+  ).addTo(map);
+
+  //adds the label to the edge between node1 and node2
+  //set to the infinity symbol bc Dijkstar
+  polyline.bindTooltip(`∞`, {
+    permanent: true,
+    direction: 'center',
+    className: 'polyline-label',
+    offset: [0, -15],
+  });
+
+  //after the polyline is generated, we set the value for the edge key, 
+  //to be that polyline
+  edges[edgeKey] = polyline;
+}
+
+//here we use the key from addEdge, which is literally 
+//a string of the 2 id's, to find the polyline we want
+//to remove the label from
+function removeLabels(node1Id, node2Id) {
+  const edgeKey = `${node1Id}-${node2Id}`;
+  if (edges[edgeKey]) {
+    edges[edgeKey].unbindTooltip();
+  }
+}
+
+//here we display each edges label with the given distance
+function displayDistanceToEdges(node1Id, node2Id, distance) {
+  const node1 = graph.getNodeAttributes(node1Id);
+  const node2 = graph.getNodeAttributes(node2Id);
 
   const polyline = L.polyline(
     [
@@ -132,54 +175,32 @@ function addEdge(node1Id, node2Id) {
     }
   ).addTo(map);
 
-  polyline.bindTooltip(`∞`, {
-    permanent: true,
-    direction: 'center',
-    className: 'polyline-label',
-    offset: [0, -15],
-  });
-
-  edges[edgeKey] = polyline;
-  edges[edgeKey] = polyline;
-}
-
-function removeLabels(node1, node2) {
-  const edgeKey = `${node1}-${node2}`;
-  if (edges[edgeKey]) {
-    edges[edgeKey].unbindTooltip();
-  }
-}
-
-function displayDistanceToEdges(node1Id, node2Id, distance) {
-  const node1 = graph.getNodeAttributes(node1Id);
-  const node2 = graph.getNodeAttributes(node2Id);
-  // Add new polyline with updated label
-
-  const polyline = L.polyline(
-    [
-      [node1.lat, node1.lng],
-      [node2.lat, node2.lng],
-    ],
-    {
-      color: 'purple', // Optional: Set color for the polyline
-      weight: 4, // Optional: Set weight for the polyline
-    }
-  ).addTo(map);
-
+  //remove label from the edge between these 2 nodes
   removeLabels(node1Id, node2Id);
+
   polyline.bindTooltip(`${distance.toFixed(2)}`, {
     permanent: true,
     direction: 'center',
     className: 'polyline-label',
     offset: [0, -15],
   });
+
+  //generates an edgekey string based on nodeId's
+  const edgeKey = `${node1Id}-${node2Id}`;
+
+  //replaces the previous polyline with this one
+  edges[edgeKey] = polyline;
 }
 
+//this gets current node in dijsktra algo
+//then finds all distances to its connections from the current node
+//then loops through each distance obj {id: nodeId, dist: distance}
 export function setDistancesToEdges(node) {
-  const distances = model.distancesFromNode(node);
+  const distanceList = model.distancesFromNode(node);
 
-  for (let distance of distances) {
-    displayDistanceToEdges(node.nodeId, distance.id, distance.dist);
+  //displays the given calculated distance on each edges label
+  for (let nodeConnection of distanceList) {
+    displayDistanceToEdges(node.nodeId, nodeConnection.id, nodeConnection.dist);
   }
 }
 
@@ -202,18 +223,29 @@ export function addNodeWithConnection(node, targetNodeId) {
   ).addTo(map);
 }
 
-async function loadJson() {
-  await fetch('./src/nodes.json')
-    .then((response) => response.json())
-    .then((data) => {
-      data.nodes.forEach((node) => {
-        addNode(node.lat, node.lng, node.name, node.nodeId);
-      });
-      data.edges.forEach((edge) => {
-        addEdge(edge.source, edge.target);
-      });
+//loads json data and then converts to visual nodes on the map
+export async function loadJson() {
+  try {
+    const response = await fetch('./src/nodes.json');
+    const { nodes, edges } = await response.json();
+
+    //Destructure nodes props and then addNode function called 
+    //with those props
+    nodes.forEach(({ lat, lng, name, nodeId }) => {
+      addNode(lat, lng, name, nodeId);
     });
+
+    //Destructure edges props and then addEdge function called
+    //with those props
+    edges.forEach(({ source, target }) => {
+      addEdge(source, target);
+    });
+
+  } catch (error) {
+    console.error('Failed to load JSON data:', error);
+  }
 }
+
 
 export async function highlightNode(currentNodeObj) {
   const currentNodeId = currentNodeObj.node.nodeId;
