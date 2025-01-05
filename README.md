@@ -1,6 +1,6 @@
 # Dijkstra's algoritme, med node navigation, visualiseret på et Europakort
 
-1[Image](./assets/europe-blank-map-hd.jpg)
+![Image](./assets/for_exam.png)
 
 ## Beskrivelse
 
