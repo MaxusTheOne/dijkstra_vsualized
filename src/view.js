@@ -9,7 +9,6 @@ export let graph;
 let edges = {};
 let map;
 export let nodeInstances = 1;
-let selectedNodes = [];
 
 //This ensures that our map and graph and json data is all initialized
 //this adds the eventlistener to start the algo
@@ -37,32 +36,6 @@ export function initMap() {
   //NOT CURRENTLY IN USE
   // map.on('click', onMapClick);
 }
-
-//NOT CURRENTLY IN USE
-// function onMapClick(e) {
-//   const { lat, lng } = e.latlng;
-//   const radius = 30000; // Radius of the nodes in meters[55, 10], 4
-//   let nearestNode;
-
-//   let isNearNode = false;
-//   graph.forEachNode((nodeId, attributes) => {
-//     const distance = map.distance([lat, lng], [attributes.lat, attributes.lng]);
-//     if (distance < radius) {
-//       isNearNode = true;
-//     }
-//     if (nearestNode === undefined || distance < nearestNode.distance) {
-//       nearestNode = { nodeId, distance };
-//     }
-//   });
-//   console.log('nearestNode', nearestNode);
-//   if (!isNearNode) {
-//     console.log('click at:', lat, lng);
-//     addNode(lat, lng);
-//   } else {
-//     console.log('');
-//   }
-// }
-
 
 
 //initializes our graph from Graphology
@@ -98,20 +71,6 @@ export function addNode(lat, lng, name) {
     className: 'polyline-label',
     direction: 'top',
   });
-}
-
-//We used this initially in the development, to figure out
-//which nodes where connected on the map, to add to our json
-//it is not needed anymore, but it was critical in development
-function handleNodeClickForEdges(nodeId) {
-  selectedNodes.push(nodeId);
-  if (selectedNodes.length === 2) {
-    const [node1, node2] = selectedNodes;
-    console.log('Adding edge between nodes', node1, node2);
-
-    addEdge(node1, node2);
-    selectedNodes = [];
-  }
 }
 
 //adds visual edges between 2 given nodes, called in loadJson
