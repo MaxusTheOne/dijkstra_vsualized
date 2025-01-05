@@ -20,7 +20,7 @@ let previousNodes = {};
 
 export async function init() {
   try {
-    const response = await fetch('./src/nodes.json');
+    const response = await fetch('./nodes.json');
     //destructuring of the variables from the json
     const { nodes: fetchedNodes, edges: fetchedConnections } = await response.json();
 

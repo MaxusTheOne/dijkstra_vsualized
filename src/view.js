@@ -207,7 +207,7 @@ export function setDistancesToEdges(node) {
 //loads json data and then converts to visual nodes on the map
 export async function loadJson() {
   try {
-    const response = await fetch('./src/nodes.json');
+    const response = await fetch('./nodes.json');
     const { nodes, edges } = await response.json();
 
     //Destructure nodes props and then addNode function called 
