@@ -1,4 +1,4 @@
-# Dijkstra's algoritme, med node navigation, visualiseret på et Europakort
+# Dijkstra's algoritme, med node navigation, visualiseret på et Europakort - eksamens projekt
 
 ![Image](./assets/for_exam.png)
 
