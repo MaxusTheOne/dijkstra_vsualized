@@ -213,6 +213,25 @@ export async function colorCircle(lat, lng, name) {
   circle.remove();
 }
 
+export function addDistanceFromStartToLabel(currentNodeObj, distance) {
+  console.log('currentNodeObj:', currentNodeObj);
+  
+  const currentNodeId = currentNodeObj.nodeId;
+  const { lat, lng, name } = graph.getNodeAttributes(currentNodeId);
+
+  const circle = L.circle(
+    { lat, lng },
+    {color: 'red', radius: 30000 }
+  ).addTo(map); 
+
+  circle.bindTooltip(`${currentNodeObj.name} - ${distance.toFixed(2)}`, {
+    permanent: true,
+    direction: 'center',
+    className: 'polyline-label',
+    direction: 'top',
+  });
+}
+
 //adds a red edge between 2 nodes, delays, removes it again
 //this is done to show dijsktra algo calculating distances to connections
 export async function highlightEdge(nodeId1, nodeId2) {

@@ -146,6 +146,7 @@ export async function dijkstraAlgo(startCountry, endCountry) {
         //we reassign the value of the key, to the newDist, since we
         //now it is smaller (Dijkstra says this)
         distances[connection.id] = newDist;
+        view.addDistanceFromStartToLabel(neighbor, newDist);
 
         //this is used for optimal path, if this is the shortest distance from our current node
         //then we set the value of our connection node id, to be the current nodes id, a reference
